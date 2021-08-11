@@ -116,6 +116,7 @@ case class SubmitRequest(flinkHome: String,
         case array if array.length == 1 => s"$flinkHdfsHome/lib/${array.head}"
         case more => throw new IllegalArgumentException(s"[StreamX] found multiple flink-dist jar in $flinkHome/lib,[${more.mkString(",")}]")
       },
+      appUploads = s"${HdfsUtils.getDefaultFS}$APP_UPLOADS",
       appJars = s"${HdfsUtils.getDefaultFS}$APP_JARS",
       appPlugins = s"${HdfsUtils.getDefaultFS}$APP_PLUGINS"
     )
@@ -134,7 +135,7 @@ case class SubmitRequest(flinkHome: String,
     customCommandLines
   }
   private[submit] def getLogConfigFile(): String = {
-    val tmp = FileUtils.createTempDir() + "/logback.xml"
+    val tmp = FileUtils.createTempDir() + "/log4j.properties"
     new PrintWriter(tmp) { write(logConfig); close }
     tmp
   }
