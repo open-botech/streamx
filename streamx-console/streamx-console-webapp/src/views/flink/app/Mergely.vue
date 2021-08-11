@@ -20,7 +20,7 @@
     </template>
 
     <div v-show="!visibleDiff">
-      <div id="monaco_config"></div>
+      <div :id=" mergelyId + 'monaco_config'"></div>
       <div class="drawer-bottom-button">
         <div
           style="float: right">
@@ -43,7 +43,7 @@
     </div>
 
     <div v-if="visibleDiff">
-      <div id="monaco_mergely"></div>
+      <div :id="mergelyId + 'monaco_mergely'"></div>
       <div class="drawer-bottom-button" style="position: absolute">
         <div
           style="float: right">
@@ -83,6 +83,9 @@ export default {
     readOnly: {
       type: Boolean,
       default: false
+    },
+    mergelyId:{
+      type: String
     }
   },
   data() {
@@ -97,7 +100,6 @@ export default {
       loading: false
     }
   },
-
   methods: {
     getOption() {
        return {
@@ -148,7 +150,7 @@ export default {
       }
       this.$nextTick(() => {
         if (this.editor == null) {
-          this.editor = monaco.editor.create(document.querySelector('#monaco_config'), this.getOption())
+          this.editor = monaco.editor.create(document.querySelector(`#${this.mergelyId}monaco_config`), this.getOption())
           this.editor.onDidChangeModelContent((event) => {
             // 第一次
             if (this.targetValue) {
@@ -157,7 +159,7 @@ export default {
             this.targetValue = this.editor.getValue()
           })
           this.$nextTick(() => {
-            const elem = document.querySelector('#monaco_config')
+            const elem = document.querySelector(`#${this.mergelyId}monaco_config`)
             this.handleHeight(elem, 130)
           })
         }
@@ -187,7 +189,7 @@ export default {
 
     handleDifferent(original, modified) {
       this.$nextTick(() => {
-        const elem = document.querySelector('#monaco_mergely')
+        const elem = document.querySelector(`#${this.mergelyId}monaco_mergely`)
         this.handleHeight(elem, 100)
         const originalModel = monaco.editor.createModel(original, 'yaml')
         const modifiedModel = monaco.editor.createModel(modified, 'yaml')

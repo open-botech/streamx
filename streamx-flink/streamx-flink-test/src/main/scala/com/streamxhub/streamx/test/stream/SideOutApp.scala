@@ -41,7 +41,7 @@ object SideOutApp extends FlinkStreaming {
      * 官方写法:设置侧输出流
      */
     val side1 = source.process(new ProcessFunction[SideEntry, SideEntry] {
-      val tag = new OutputTag[SideEntry]("flink")
+      val tag = new OutputTag[SideEntry]("org/apache/flink")
 
       override def processElement(value: SideEntry, ctx: ProcessFunction[SideEntry, SideEntry]#Context, out: Collector[SideEntry]): Unit = {
         if (value.userId < 100) {
@@ -53,7 +53,7 @@ object SideOutApp extends FlinkStreaming {
     })
 
     //官方写法,获取侧输出流
-    side1.getSideOutput(new OutputTag[SideEntry]("flink")).print("flink:========>")
+    side1.getSideOutput(new OutputTag[SideEntry]("org/apache/flink")).print("flink:========>")
 
   }
 

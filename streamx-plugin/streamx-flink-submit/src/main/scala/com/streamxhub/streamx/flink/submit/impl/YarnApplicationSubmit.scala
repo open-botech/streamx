@@ -33,7 +33,7 @@ import org.apache.flink.client.program.PackagedProgramUtils
 import org.apache.flink.configuration._
 import org.apache.flink.runtime.security.{SecurityConfiguration, SecurityUtils}
 import org.apache.flink.runtime.util.HadoopUtils
-import org.apache.flink.yarn.configuration.{YarnConfigOptions, YarnDeploymentTarget}
+import org.apache.flink.yarn.configuration.{YarnConfigOptions, YarnConfigOptionsInternal, YarnDeploymentTarget}
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.hadoop.yarn.api.records.ApplicationId
 
@@ -133,11 +133,11 @@ object YarnApplicationSubmit extends YarnSubmitTrait {
             programArgs += PARAM_KEY_APP_CONF
             programArgs += submitRequest.appConf
           }
-          val version = submitRequest.flinkVersion.split("\\.").map(_.trim.toInt)
+          val version = submitRequest.flinkVersion.split("\\.").map(_.trim.toString)
           version match {
-            case Array(1, 13, _) =>
+            case Array("1", "13", _) =>
               providedLibs += s"${HdfsUtils.getDefaultFS}$APP_SHIMS/flink-1.13"
-            case Array(1, 11 | 12, _) =>
+            case Array("1", "11" | "12", _) =>
               providedLibs += s"${HdfsUtils.getDefaultFS}$APP_SHIMS/flink-1.12"
             case _ =>
               throw new UnsupportedOperationException(s"Unsupported flink version: ${submitRequest.flinkVersion}")
@@ -152,6 +152,9 @@ object YarnApplicationSubmit extends YarnSubmitTrait {
           programArgs += submitRequest.appConf
       }
       providedLibs -> programArgs
+    }
+    if(submitRequest.logConfig!=null){
+      effectiveConfiguration.set(YarnConfigOptionsInternal.APPLICATION_LOG_CONFIG_FILE,submitRequest.getLogConfigFile());
     }
 
     val currentUser = UserGroupInformation.getCurrentUser
@@ -181,7 +184,6 @@ object YarnApplicationSubmit extends YarnSubmitTrait {
     //state.checkpoints.num-retained
     val retainedOption = CheckpointingOptions.MAX_RETAINED_CHECKPOINTS
     effectiveConfiguration.set(retainedOption, submitRequest.flinkDefaultConfiguration.get(retainedOption))
-
     logInfo(
       s"""
          |------------------------------------------------------------------

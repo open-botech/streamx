@@ -128,6 +128,7 @@ const respBlob = (content, fileName) => {
 
 const blobTimeout = 1000 * 60 * 10
 export default {
+   http,
     get (url, data = {}) {
         return http.get(url, data)
     },

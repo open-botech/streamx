@@ -154,6 +154,8 @@
             two-tone-color="#4a9ff5"
             @click="handleSQLConf(true)" />
         </a-form-item>
+
+
       </template>
 
       <template v-else>
@@ -272,6 +274,25 @@
           </a-tree-select>
         </a-form-item>
       </template>
+
+      <a-form-item
+        label="Log conf"
+        :label-col="{lg: {span: 5}, sm: {span: 7}}"
+        :wrapper-col="{lg: {span: 16}, sm: {span: 17} }">
+        <a-switch
+          checked-children="ON"
+          un-checked-children="OFF"
+          @click="handleLogConf"
+          v-model="isSetLogConfig"
+          v-decorator="[ 'logConfig' ]"/>
+        <a-icon
+          v-if="isSetLogConfig"
+          type="setting"
+          style="margin-left: 10px"
+          theme="twoTone"
+          two-tone-color="#4a9ff5"
+          @click="handleLogConf(true)" />
+      </a-form-item>
 
       <a-form-item
         label="Application Name"
@@ -764,10 +785,19 @@
     </a-modal>
 
     <Mergely
+      :mergelyId="'configMerge'"
       ref="confEdit"
+      v-if="isSetConfig"
       @close="handleEditConfClose"
       @ok="handleEditConfOk"
       :visiable="controller.visiable.conf" />
+    <Mergely
+      :mergelyId="'logConfigMerge'"
+      ref="logConfEdit"
+      v-if="isSetLogConfig"
+      @close="handleEditLogConfClose"
+      @ok="handleEditLogConfOk"
+      :visiable="controller.visiable.logConf" />
   </a-card>
 </template>
 
@@ -776,6 +806,7 @@ import Ellipsis from '@/components/Ellipsis'
 import { jars, listConf, modules, select } from '@api/project'
 import { create, upload, exists, main, name, readConf, checkJar } from '@api/application'
 import { template } from '@api/config'
+import { template as logTemplate} from '@api/logconfig'
 import Mergely from './Mergely'
 import configOptions from './Option'
 const Base64 = require('js-base64').Base64
@@ -828,6 +859,8 @@ export default {
       switchDefaultValue: true,
       config: null,
       isSetConfig: false,
+
+      isSetLogConfig: false,
       alert: true,
       alertTypes: [
         {name: 'E-mail', value: 1, disabled: false},
@@ -837,6 +870,8 @@ export default {
       ],
       alertType: [],
       configOverride: null,
+
+      logConfigOverride: null,
       configSource: [],
       configItems: [],
       totalItems: [],
@@ -860,6 +895,7 @@ export default {
         },
         visiable: {
           conf: false,
+          logConf: false,
           bigScreen: false
         },
         modal: {
@@ -1069,6 +1105,28 @@ export default {
         this.controller.visiable.conf = false
         this.configOverride = null
         this.isSetConfig = false
+      }
+    },
+
+
+    handleLogConf(checked) {
+      if (checked) {
+        if (this.logConfigOverride != null) {
+          this.controller.visiable.logConf = true
+          this.$refs.logConfEdit.set(this.logConfigOverride)
+        } else {
+          logTemplate({}).then((resp) => {
+            this.controller.visiable.logConf = true
+            const logConfig = Base64.decode(resp.data)
+            this.$refs.logConfEdit.set(logConfig)
+          }).catch((error) => {
+            this.$message.error(error.message)
+          })
+        }
+      } else {
+        this.controller.visiable.logConf = false
+        this.logConfigOverride = null
+        this.isSetLogConfig = false
       }
     },
 
@@ -1311,6 +1369,22 @@ export default {
         this.configOverride = value
       }
     },
+    handleEditLogConfClose() {
+      this.controller.visiable.logConf = false
+      if (this.logConfigOverride == null) {
+        this.isSetLogConfig = false
+      }
+    },
+
+    handleEditLogConfOk(value) {
+      if (value == null || !value.replace(/^\s+|\s+$/gm, '')) {
+        this.isSetLogConfig = false
+        this.logConfigOverride = null
+      } else {
+        this.isSetLogConfig = true
+        this.logConfigOverride = value
+      }
+    },
 
     handleSubmit(e) {
       e.preventDefault()
@@ -1341,9 +1415,16 @@ export default {
 
     handleSubmitCustomJob(values) {
       const options = this.handleFormValue(values)
+      let logConfig = this.logConfigOverride
+      if (logConfig != null && logConfig != undefined && logConfig.trim() != '') {
+        logConfig = Base64.encode(logConfig)
+      } else {
+        logConfig = null
+      }
       // common params...
       const params = {
         jobType: 1,
+        logConfig: logConfig,
         executionMode: values.executionMode,
         projectId: values.project,
         module: values.module,
@@ -1404,12 +1485,20 @@ export default {
         config = null
       }
 
+      let logConfig = this.logConfigOverride
+      if (logConfig != null && logConfig != undefined && logConfig.trim() != '') {
+        logConfig = Base64.encode(logConfig)
+      } else {
+        logConfig = null
+      }
+
       const params = {
         jobType: 2,
         executionMode: values.executionMode,
         flinkSql: this.controller.flinkSql.value,
         appType: 1,
         config: config,
+        logConfig: logConfig,
         jobName: values.jobName,
         args: values.args || null,
         dependency: dependency.pom === undefined && dependency.jar === undefined ? null : JSON.stringify(dependency),

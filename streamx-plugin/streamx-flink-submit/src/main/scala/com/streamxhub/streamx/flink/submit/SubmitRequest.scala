@@ -23,14 +23,15 @@ package com.streamxhub.streamx.flink.submit
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.streamxhub.streamx.common.conf.ConfigConst._
 import com.streamxhub.streamx.common.enums.{DevelopmentMode, ExecutionMode, ResolveOrder}
-import com.streamxhub.streamx.common.util.{DeflaterUtils, HdfsUtils, PropertiesUtils}
+import com.streamxhub.streamx.common.util.{DeflaterUtils, FileUtils, HdfsUtils, PropertiesUtils}
 import com.streamxhub.streamx.flink.submit.`trait`.WorkspaceEnv
 import org.apache.flink.client.cli.CliFrontend
 import org.apache.flink.client.cli.CliFrontend.loadCustomCommandLines
 import org.apache.flink.client.deployment.application.ApplicationConfiguration
 import org.apache.flink.configuration.{Configuration, GlobalConfiguration}
+import org.apache.hadoop.fs.{FileSystem, Path}
 
-import java.io.File
+import java.io.{File, IOException, PrintWriter}
 import java.util.{Map => JavaMap}
 import scala.collection.JavaConversions._
 
@@ -49,7 +50,10 @@ case class SubmitRequest(flinkHome: String,
                          option: String,
                          property: JavaMap[String, Any],
                          dynamicOption: Array[String],
-                         args: String) {
+                         args: String,
+                         logConfig: String) {
+
+
 
   lazy val appProperties: Map[String, String] = getParameterMap(KEY_FLINK_DEPLOYMENT_PROPERTY_PREFIX)
 
@@ -129,5 +133,9 @@ case class SubmitRequest(flinkHome: String,
     new CliFrontend(flinkDefaultConfiguration, customCommandLines)
     customCommandLines
   }
-
+  private[submit] def getLogConfigFile(): String = {
+    val tmp = FileUtils.createTempDir() + "/logback.xml"
+    new PrintWriter(tmp) { write(logConfig); close }
+    tmp
+  }
 }

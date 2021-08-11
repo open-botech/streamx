@@ -45,6 +45,7 @@ export function upload (params) {
   return http.upload(api.Application.UPLOAD, params)
 }
 
+
 export function deploy (params) {
   return http.post(api.Application.DEPLOY, params)
 }

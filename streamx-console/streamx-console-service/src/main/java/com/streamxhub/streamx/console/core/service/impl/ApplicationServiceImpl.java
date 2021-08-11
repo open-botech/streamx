@@ -97,6 +97,9 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     private ApplicationConfigService configService;
 
     @Autowired
+    private ApplicationLogConfigService logConfigService;
+
+    @Autowired
     private FlinkSqlService flinkSqlService;
 
     @Autowired
@@ -251,6 +254,10 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
         if (config != null) {
             this.configService.toEffective(application.getId(), config.getId());
         }
+        ApplicationLogConfig logConfig = logConfigService.getLatest(application.getId());
+        if (logConfig != null) {
+            this.logConfigService.toEffective(application.getId(), logConfig.getId());
+        }
         if (application.isFlinkSqlJob()) {
             FlinkSql flinkSql = flinkSqlService.getCandidate(application.getId(), null);
             if (flinkSql != null) {
@@ -309,18 +316,22 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             //3) 删除 config
             configService.removeApp(app.getId());
 
-            //4) 删除 effective
+            //4) 删除 logConfig
+            logConfigService.removeApp(app.getId());
+
+
+            //5) 删除 effective
             effectiveService.removeApp(app.getId());
 
             //以下涉及到hdfs文件的删除
 
-            //5) 删除 backup
+            //6) 删除 backup
             backUpService.removeApp(app.getId());
 
-            //6) 删除savepoint
+            //7) 删除savepoint
             savePointService.removeApp(app.getId());
 
-            //7) 删除 app
+            //8) 删除 app
             removeApp(app.getId());
 
             FlinkTrackingTask.stopTracking(app.getId());
@@ -443,6 +454,9 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             if (appParam.getConfig() != null) {
                 configService.create(appParam, true);
             }
+            if (appParam.getLogConfig() != null) {
+                logConfigService.create(appParam, true);
+            }
             assert appParam.getId() != null;
             deploy(appParam);
             return true;
@@ -484,12 +498,14 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             application.setExecutionMode(appParam.getExecutionMode());
             //以下参数发生改变不影响正在运行的任务
             application.setDescription(appParam.getDescription());
+            application.setLogConfig(appParam.getLogConfig());
             application.setAlertEmail(appParam.getAlertEmail());
             application.setRestartSize(appParam.getRestartSize());
             application.setCpFailureAction(appParam.getCpFailureAction());
             application.setCpFailureRateInterval(appParam.getCpFailureRateInterval());
             application.setCpMaxFailureInterval(appParam.getCpMaxFailureInterval());
 
+            logConfigService.update(appParam, application.isRunning());
             // Flink Sql job...
             if (application.isFlinkSqlJob()) {
                 updateFlinkSqlJob(application, appParam);
@@ -591,7 +607,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
                         );
                         return null;
-                    });
+                    }) ;
 
                     LambdaUpdateWrapper<Application> updateWrapper = new LambdaUpdateWrapper<>();
                     updateWrapper.eq(Application::getId, application.getId());
@@ -792,6 +808,10 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
         if (config != null) {
             config.setToApplication(application);
         }
+        ApplicationLogConfig logConfig = logConfigService.getEffective(appParam.getId());
+        if (logConfig != null) {
+            logConfig.setToApplication(application);
+        }
         if (application.isFlinkSqlJob()) {
             FlinkSql flinkSql = flinkSqlService.getEffective(application.getId(), true);
             flinkSql.setToApplication(application);
@@ -923,6 +943,8 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
 
         //获取一个最新的Effective的配置
         ApplicationConfig applicationConfig = configService.getEffective(application.getId());
+        ApplicationLogConfig applicationLogConfig = logConfigService.getEffective(application.getId());
+
         ExecutionMode executionMode = ExecutionMode.of(application.getExecutionMode());
 
         if (application.isCustomCodeJob()) {
@@ -1053,7 +1075,8 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
                 option.toString(),
                 optionMap,
                 dynamicOption,
-                application.getArgs()
+                application.getArgs(),
+                applicationLogConfig!=null?DeflaterUtils.unzipString(applicationLogConfig.getContent()):null
         );
 
         ApplicationLog log = new ApplicationLog();

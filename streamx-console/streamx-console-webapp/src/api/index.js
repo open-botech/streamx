@@ -85,6 +85,13 @@ export default {
     HISTORY: '/flink/conf/history',
     DELETE: '/flink/conf/delete'
   },
+  LogConfig: {
+    GET: '/flink/logConf/get',
+    TEMPLATE: '/flink/logConf/template',
+    LIST: '/flink/logConf/list',
+    HISTORY: '/flink/logConf/history',
+    DELETE: '/flink/logConf/delete'
+  },
   FlinkSQL: {
     VERIFY: '/flink/sql/verify',
     GET: '/flink/sql/get',

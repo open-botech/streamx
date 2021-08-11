@@ -19,7 +19,7 @@
     provided: 表示的不是依赖可选,它表示这个依赖是必须的,但是这个依赖通常是已经提供的,应用服务不需要额外引入,通常也不用关心
     -->
     <properties>
-        <flink.version>1.13.0</flink.version>
+        <flink.version>1.13.0-SNAPSHOT</flink.version>
     </properties>
 
     <dependencies>

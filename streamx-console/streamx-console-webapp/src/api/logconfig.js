@@ -18,36 +18,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.streamxhub.streamx.console.core.enums;
-
-import java.io.Serializable;
-
-/**
- * @author benjobs
- */
-public enum EffectiveType implements Serializable {
-    /**
-     * config
-     */
-    CONFIG(1),
-    /**
-     * FLINKSQL
-     */
-    FLINKSQL(2),
+import api from './index'
+import http from '@/utils/request'
 
 
-    /**
-     * LogConfig
-     */
-    LOGCONFIG(3);
-
-    int type;
-
-    EffectiveType(int value) {
-        this.type = value;
-    }
-
-    public int getType() {
-        return type;
-    }
+export function template (params) {
+  return http.post(api.LogConfig.TEMPLATE, params)
 }
+

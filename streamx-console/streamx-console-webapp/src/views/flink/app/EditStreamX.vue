@@ -198,6 +198,8 @@
             two-tone-color="#4a9ff5"
             @click="handleSQLConf(true)" />
         </a-form-item>
+
+
       </template>
 
       <template v-else>
@@ -351,6 +353,25 @@
           </a-input-group>
         </a-form-item>
       </template>
+
+      <a-form-item
+        label="Log conf"
+        :label-col="{lg: {span: 5}, sm: {span: 7}}"
+        :wrapper-col="{lg: {span: 16}, sm: {span: 17} }">
+        <a-switch
+          checked-children="ON"
+          un-checked-children="OFF"
+          @click="handleLogConf"
+          v-model="isSetLogConfig"
+          v-decorator="[ 'config' ]" />
+        <a-icon
+          v-if="isSetLogConfig"
+          type="setting"
+          style="margin-left: 10px"
+          theme="twoTone"
+          two-tone-color="#4a9ff5"
+          @click="handleLogConf(true)" />
+      </a-form-item>
 
       <a-form-item
         label="Application Name"
@@ -854,10 +875,18 @@
     </a-modal>
 
     <Mergely
+      :mergelyId="'configMerge'"
       ref="mergely"
       @close="handleEditConfClose"
       @ok="handleEditConfOk"
       :visiable="controller.visiable.mergely" />
+
+    <Mergely
+      :mergelyId="'logConfigMerge'"
+      ref="logMergely"
+      @close="handleEditLogConfClose"
+      @ok="handleEditLogConfOk"
+      :visiable="controller.visiable.logMergely" />
 
     <Different ref="different"/>
 
@@ -868,14 +897,15 @@
 import Ellipsis from '@/components/Ellipsis'
 import { listConf } from '@api/project'
 import { get, update, exists, name, readConf, upload } from '@api/application'
+
 import { history as confhistory, get as getVer, template } from '@api/config'
+import {  template as logTemplate } from '@api/logconfig'
 import { get as getSQL, history as sqlhistory } from '@api/flinksql'
 import { mapActions, mapGetters } from 'vuex'
 import Mergely from './Mergely'
 import Different from './Different'
 import configOptions from './Option'
 import SvgIcon from '@/components/SvgIcon'
-
 const Base64 = require('js-base64').Base64
 import {
   initEditor,
@@ -931,6 +961,8 @@ export default {
       defaultOptions: {},
       isSetConfig: false,
       configOverride: null,
+      isSetLogConfig: false,
+      logConfigOverride: null,
       configId: null,
       configVersions: [],
       flinkSqlHistory: [],
@@ -966,6 +998,7 @@ export default {
         },
         visiable: {
           mergely: false,
+          logMergely: false,
           bigScreen: false
         },
         modal: {
@@ -1072,6 +1105,10 @@ export default {
         if (this.app.config && this.app.config.trim() != '') {
           this.configOverride = Base64.decode(this.app.config)
           this.isSetConfig = true
+        }
+        if (this.app.logConfig && this.app.logConfig.trim() != '') {
+          this.logConfigOverride = Base64.decode(this.app.logConfig)
+          this.isSetLogConfig = true
         }
         this.defaultOptions = JSON.parse(this.app.options)
         this.configId = this.app.configId
@@ -1271,6 +1308,27 @@ export default {
       }
     },
 
+    handleLogConf(checked) {
+      if (checked) {
+        if (this.logConfigOverride != null) {
+          this.controller.visiable.logMergely = true
+          this.$refs.logMergely.set(this.logConfigOverride)
+        } else {
+          logTemplate({}).then((resp) => {
+            const logConfig = Base64.decode(resp.data)
+            this.controller.visiable.logMergely = true
+            this.$refs.logMergely.set(logConfig)
+          }).catch((error) => {
+            this.$message.error(error.message)
+          })
+        }
+      } else {
+        this.controller.visiable.logMergely = false
+        this.logConfigOverride = null
+        this.isSetLogConfig = false
+      }
+    },
+
     handleApplyPom() {
       applyPom(this)
     },
@@ -1292,7 +1350,7 @@ export default {
     },
 
     handleBeforeUpload(file) {
-      if (file.type !== 'application/java-archive') {
+      if (file.type !== 'application/java-archive' && file.type !== 'application/x-java-archive') {
         this.loading = false
         this.$message.error('You can only upload jar file !')
         return false
@@ -1371,6 +1429,23 @@ export default {
       }
     },
 
+    handleEditLogConfClose() {
+      this.controller.visiable.logMergely = false
+      if (this.logConfigOverride == null) {
+        this.isSetLogConfig = false
+      }
+    },
+
+    handleEditLogConfOk(value) {
+      if (value == null || value.trim() === '') {
+        this.isSetLogConfig = false
+        this.logConfigOverride = null
+      } else {
+        this.isSetLogConfig = true
+        this.logConfigOverride = value
+      }
+    },
+
     handleSubmit(e) {
       e.preventDefault()
       this.form.validateFields((err, values) => {
@@ -1432,6 +1507,14 @@ export default {
       } else {
         config = null
       }
+
+      let logConfig = this.logConfigOverride
+      if (logConfig != null && logConfig.trim() !== '') {
+        logConfig = Base64.encode(logConfig)
+      } else {
+        logConfig = null
+      }
+
       const configId = this.strategy === 1 ? this.configId : null
       const params = {
         id: this.app.id,
@@ -1439,6 +1522,7 @@ export default {
         format: format,
         configId: configId,
         config: config,
+        logConfig:logConfig,
         args: values.args,
         options: JSON.stringify(options),
         dynamicOptions: values.dynamicOptions,
@@ -1474,11 +1558,20 @@ export default {
         config = null
       }
 
+      let logConfig = this.logConfigOverride
+      if (logConfig != null && logConfig.trim() !== '') {
+        logConfig = Base64.encode(logConfig)
+      } else {
+        logConfig = null
+      }
+
+
       const params = {
         id: this.app.id,
         sqlId: this.defaultFlinkSqlId || null,
         flinkSql: this.controller.flinkSql.value,
         config: config,
+        logConfig: logConfig,
         jobName: values.jobName,
         args: values.args || null,
         dependency: dependency.pom === undefined && dependency.jar === undefined ? null : JSON.stringify(dependency),

@@ -20,7 +20,7 @@
         <hadoop.version>2.10.1</hadoop.version>
         <hbase.version>2.1.10</hbase.version>
         <flink112.version>1.12.0</flink112.version>
-        <flink113.version>1.13.0</flink113.version>
+        <flink113.version>1.13.0-SNAPSHOT</flink113.version>
         <scala.version>2.11.12</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
         <junit.version>4.13.1</junit.version>

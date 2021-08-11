@@ -51,12 +51,12 @@ object KafkaTableApp extends FlinkStreamTable {
     // select  where
     table.
       select($"id", $"name")
-      .where($"id" === "flink")
+      .where($"id" === "org/apache/flink")
       .>>[(String, String)].print("simple where==>")
 
     table.
       select('id, 'name)
-      .where('id === "flink")
+      .where('id === "org/apache/flink")
       .>>[(String, String)].print("simple where2==>")
 
     /**
@@ -64,7 +64,7 @@ object KafkaTableApp extends FlinkStreamTable {
      * name like apache%
      */
     table.select("id", "name")
-      .where("id" === "flink")
+      .where("id" === "org/apache/flink")
       .where("name" like "apache%")
       .>>[(String, String)].print("like where==>")
 
@@ -72,7 +72,7 @@ object KafkaTableApp extends FlinkStreamTable {
      * filter等同于where的操作
      */
     table.select("id", "name")
-      .filter("id" === "flink")
+      .filter("id" === "org/apache/flink")
       .>>[(String, String)].print("Select -> filter ==>")
 
     /**
