@@ -7,10 +7,7 @@ import store from '@/store'
 import moment from 'moment'
 import {message, Modal} from 'ant-design-vue'
 
-import {baseUrl} from '@/api/baseUrl'
-
 const http = axios.create({
-  baseURL: baseUrl(),
   withCredentials: false,
   timeout: 1000 * 10, // 请求超时时间
   responseType: 'json',
@@ -42,7 +39,9 @@ http.interceptors.request.use(config => {
   config.headers = {
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': config.headers['Content-Type'] || 'application/x-www-form-urlencoded; charset=UTF-8',
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    'userId': 13,
+    'X-Auth-UserId': 13
   }
   const token = storage.get(TOKEN)
   if (token) {
@@ -50,11 +49,11 @@ http.interceptors.request.use(config => {
   }
   config.transformRequest = [function (data) {
     // 在请求之前对data传参进行格式转换
-    if (data.sortField && data.sortOrder) {
+    if (data?.sortField && data?.sortOrder) {
       data.sortOrder = data.sortOrder === 'descend' ? 'desc' : 'asc'
     } else {
-      delete data.sortField
-      delete data.sortOrder
+      delete data?.sortField
+      delete data?.sortOrder
     }
     if (config.method === 'get') {
       data = {params: data}
@@ -63,6 +62,7 @@ http.interceptors.request.use(config => {
     } else if (config.headers['Content-Type'] !== 'multipart/form-data') {
       data = $qs.stringify(data)
     }
+    console.log(data)
     return data
   }]
   return config

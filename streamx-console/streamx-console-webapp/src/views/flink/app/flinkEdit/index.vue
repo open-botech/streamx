@@ -2,7 +2,9 @@
   <div style="height: 100%;">
     <div class="flinkEdit">
       <a-row type="flex" class="top">
-        <a-col flex="300px">hold-all</a-col>
+        <a-col flex="300px" style="height: 100%;">
+          <OperateArea></OperateArea>
+        </a-col>
         <a-col flex="auto" class="edit">
           <EditTabs></EditTabs>
         </a-col>
@@ -16,8 +18,9 @@
 
 <script>
 import EditTabs from './components/editTabs.vue'
+import OperateArea from './components/OperateArea.vue'
 export default {
-  components:{EditTabs}
+  components:{EditTabs, OperateArea}
 }
 </script>
 <style lang="less" scoped>
@@ -30,12 +33,11 @@ export default {
     flex: 1;
   }
   .top{
-  
-  height: 500px;
-  .edit{
-    border:1px solid #343434
+    height: 500px;
+    .edit{
+      border:1px solid #343434
+    }
   }
-}
 }
 
 </style>

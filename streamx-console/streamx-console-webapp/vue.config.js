@@ -41,11 +41,19 @@ module.exports = {
     // development server port 8000
     port: 10000,
     proxy: {
-      '/api': {
+      '/streamxApi': {
         target: 'http://172.16.1.192:10000/',
         ws: false,
         changeOrigin: true,
-        pathRewrite: { '^/api': '' }
+        pathRewrite: { '^/streamxApi': '' }
+      },
+      '/daasApi': {
+        logLevel: 'debug',
+        target: 'http://172.16.1.192:9091',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/daasApi': ''
+        }
       }
     }
   },

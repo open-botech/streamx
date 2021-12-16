@@ -18,125 +18,133 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+const STREAMXAPI = '/streamxApi'
+const DAASAPI = '/daasApi'
+
 export default {
   Passport: {
-    SIGNIN: '/passport/signin',
-    SIGNOUT: '/passport/signout'
+    SIGNIN: STREAMXAPI + '/passport/signin',
+    SIGNOUT: STREAMXAPI + '/passport/signout'
   },
   Project: {
-    BRANCHES: '/flink/project/branches',
-    GITCHECK: '/flink/project/gitcheck',
-    EXISTS: '/flink/project/exists',
-    CREATE: '/flink/project/create',
-    BUILD: '/flink/project/build',
-    CLOSEBUILD: '/flink/project/closebuild',
-    LIST: '/flink/project/list',
-    FILELIST: '/flink/project/filelist',
-    MODULES: '/flink/project/modules',
-    LISTCONF: '/flink/project/listconf',
-    JARS: '/flink/project/jars',
-    DELETE: '/flink/project/delete',
-    SELECT: '/flink/project/select'
+    BRANCHES: STREAMXAPI + '/flink/project/branches',
+    GITCHECK: STREAMXAPI + '/flink/project/gitcheck',
+    EXISTS: STREAMXAPI + '/flink/project/exists',
+    CREATE: STREAMXAPI + '/flink/project/create',
+    BUILD: STREAMXAPI + '/flink/project/build',
+    CLOSEBUILD: STREAMXAPI + '/flink/project/closebuild',
+    LIST: STREAMXAPI + '/flink/project/list',
+    FILELIST: STREAMXAPI + '/flink/project/filelist',
+    MODULES: STREAMXAPI + '/flink/project/modules',
+    LISTCONF: STREAMXAPI + '/flink/project/listconf',
+    JARS: STREAMXAPI + '/flink/project/jars',
+    DELETE: STREAMXAPI + '/flink/project/delete',
+    SELECT: STREAMXAPI + '/flink/project/select'
   },
   Tutorial: {
-    GET: '/tutorial/get'
+    GET: STREAMXAPI + '/tutorial/get'
   },
   NoteBook: {
-    SUBMIT: '/flink/notebook/submit'
+    SUBMIT: STREAMXAPI + '/flink/notebook/submit'
   },
   Metrics: {
-    FLAMEGRAPH: '/metrics/flamegraph',
-    NOTICE: '/metrics/notice',
-    DELNOTICE: '/metrics/delnotice'
+    FLAMEGRAPH: STREAMXAPI + '/metrics/flamegraph',
+    NOTICE: STREAMXAPI + '/metrics/notice',
+    DELNOTICE: STREAMXAPI + '/metrics/delnotice'
   },
   SavePoint: {
-    LATEST: '/flink/savepoint/latest',
-    HISTORY: '/flink/savepoint/history',
-    DELETE: '/flink/savepoint/delete'
+    LATEST: STREAMXAPI + '/flink/savepoint/latest',
+    HISTORY: STREAMXAPI + '/flink/savepoint/history',
+    DELETE: STREAMXAPI + '/flink/savepoint/delete'
   },
   Application: {
-    READCONF: '/flink/app/readConf',
-    UPDATE: '/flink/app/update',
-    UPLOAD: '/flink/app/upload',
-    DEPLOY: '/flink/app/deploy',
-    MAPPING: '/flink/app/mapping',
-    YARN: '/flink/app/yarn',
-    LIST: '/flink/app/list',
-    GET: '/flink/app/get',
-    DASHBOARD: '/flink/app/dashboard',
-    MAIN: '/flink/app/main',
-    NAME: '/flink/app/name',
-    EXISTS: '/flink/app/exists',
-    CANCEL: '/flink/app/cancel',
-    DELETE: '/flink/app/delete',
-    DELETEBAK: '/flink/app/deletebak',
-    CREATE: '/flink/app/create',
-    START: '/flink/app/start',
-    CLEAN: '/flink/app/clean',
-    BACKUPS: '/flink/app/backups',
-    ROLLBACK: '/flink/app/rollback',
-    REVOKE: '/flink/app/revoke',
-    STARTLOG: '/flink/app/startlog',
-    CHECKJAR: '/flink/app/checkjar'
+    READCONF: STREAMXAPI + '/flink/app/readConf',
+    UPDATE: STREAMXAPI + '/flink/app/update',
+    UPLOAD: STREAMXAPI + '/flink/app/upload',
+    DEPLOY: STREAMXAPI + '/flink/app/deploy',
+    MAPPING: STREAMXAPI + '/flink/app/mapping',
+    YARN: STREAMXAPI + '/flink/app/yarn',
+    LIST: STREAMXAPI + '/flink/app/list',
+    GET: STREAMXAPI + '/flink/app/get',
+    DASHBOARD: STREAMXAPI + '/flink/app/dashboard',
+    MAIN: STREAMXAPI + '/flink/app/main',
+    NAME: STREAMXAPI + '/flink/app/name',
+    EXISTS: STREAMXAPI + '/flink/app/exists',
+    CANCEL: STREAMXAPI + '/flink/app/cancel',
+    DELETE: STREAMXAPI + '/flink/app/delete',
+    DELETEBAK: STREAMXAPI + '/flink/app/deletebak',
+    CREATE: STREAMXAPI + '/flink/app/create',
+    START: STREAMXAPI + '/flink/app/start',
+    CLEAN: STREAMXAPI + '/flink/app/clean',
+    BACKUPS: STREAMXAPI + '/flink/app/backups',
+    ROLLBACK: STREAMXAPI + '/flink/app/rollback',
+    REVOKE: STREAMXAPI + '/flink/app/revoke',
+    STARTLOG: STREAMXAPI + '/flink/app/startlog',
+    CHECKJAR: STREAMXAPI + '/flink/app/checkjar'
   },
   Config: {
-    GET: '/flink/conf/get',
-    TEMPLATE: '/flink/conf/template',
-    LIST: '/flink/conf/list',
-    HISTORY: '/flink/conf/history',
-    DELETE: '/flink/conf/delete'
+    GET: STREAMXAPI + '/flink/conf/get',
+    TEMPLATE: STREAMXAPI + '/flink/conf/template',
+    LIST: STREAMXAPI + '/flink/conf/list',
+    HISTORY: STREAMXAPI + '/flink/conf/history',
+    DELETE: STREAMXAPI + '/flink/conf/delete'
   },
   FlinkEnv: {
-    LIST: '/flink/env/list',
-    CREATE:  '/flink/env/create',
-    EXISTS: '/flink/env/exists',
-    GET: '/flink/env/get',
-    SYNC: '/flink/env/sync',
-    UPDATE: '/flink/env/update',
-    DEFAULT: '/flink/env/default',
+    LIST: STREAMXAPI + '/flink/env/list',
+    CREATE:  STREAMXAPI + '/flink/env/create',
+    EXISTS: STREAMXAPI + '/flink/env/exists',
+    GET: STREAMXAPI + '/flink/env/get',
+    SYNC: STREAMXAPI + '/flink/env/sync',
+    UPDATE: STREAMXAPI + '/flink/env/update',
+    DEFAULT: STREAMXAPI + '/flink/env/default',
   },
   FlinkSQL: {
-    VERIFY: '/flink/sql/verify',
-    GET: '/flink/sql/get',
-    HISTORY: '/flink/sql/history'
+    VERIFY: STREAMXAPI + '/flink/sql/verify',
+    GET: STREAMXAPI + '/flink/sql/get',
+    HISTORY: STREAMXAPI + '/flink/sql/history'
   },
   SETTING: {
-    GET: '/flink/setting/get',
-    WEBURL: '/flink/setting/weburl',
-    ALL: '/flink/setting/all',
-    GETFLINK: '/flink/setting/getflink',
-    SYNC: '/flink/setting/sync',
-    UPDATE: '/flink/setting/update'
+    GET: STREAMXAPI + '/flink/setting/get',
+    WEBURL: STREAMXAPI + '/flink/setting/weburl',
+    ALL: STREAMXAPI + '/flink/setting/all',
+    GETFLINK: STREAMXAPI + '/flink/setting/getflink',
+    SYNC: STREAMXAPI + '/flink/setting/sync',
+    UPDATE: STREAMXAPI + '/flink/setting/update'
   },
   User: {
-    EXECUSER: '/user/execUser',
-    LIST: '/user/list',
-    UPDATE: '/user/update',
-    PASSWORD: '/user/password',
-    RESET: '/user/password/reset',
-    GET: '/user/get',
-    POST: '/user/post',
-    DELETE: '/user/delete',
-    CHECK_NAME: '/user/check/name',
-    CHECK_PASSWORD: '/user/check/password'
+    EXECUSER: STREAMXAPI + '/user/execUser',
+    LIST: STREAMXAPI + '/user/list',
+    UPDATE: STREAMXAPI + '/user/update',
+    PASSWORD: STREAMXAPI + '/user/password',
+    RESET: STREAMXAPI + '/user/password/reset',
+    GET: STREAMXAPI + '/user/get',
+    POST: STREAMXAPI + '/user/post',
+    DELETE: STREAMXAPI + '/user/delete',
+    CHECK_NAME: STREAMXAPI + '/user/check/name',
+    CHECK_PASSWORD: STREAMXAPI + '/user/check/password'
   },
   Role: {
-    POST: '/role/post',
-    UPDATE: '/role/update',
-    LIST: '/role/list',
-    CHECK_NAME: '/role/check/name',
-    DELETE: '/role/delete',
-    MENU: '/role/menu'
+    POST: STREAMXAPI + '/role/post',
+    UPDATE: STREAMXAPI + '/role/update',
+    LIST: STREAMXAPI + '/role/list',
+    CHECK_NAME: STREAMXAPI + '/role/check/name',
+    DELETE: STREAMXAPI + '/role/delete',
+    MENU: STREAMXAPI + '/role/menu'
   },
   Menu: {
-    LIST: '/menu/list',
-    DELETE: '/menu/delete',
-    POST: '/menu/post',
-    UPDATE: '/menu/update',
-    ROUTER: '/menu/router'
+    LIST: STREAMXAPI + '/menu/list',
+    DELETE: STREAMXAPI + '/menu/delete',
+    POST: STREAMXAPI + '/menu/post',
+    UPDATE: STREAMXAPI + '/menu/update',
+    ROUTER: STREAMXAPI + '/menu/router'
   },
   Log: {
-    LIST: '/log/list',
-    DELETE: '/log/delete',
+    LIST: STREAMXAPI + '/log/list',
+    DELETE: STREAMXAPI + '/log/delete',
+  },
+  DataSource: {
+    LIST: DAASAPI + '/metadataSource/source',
+    TABLE: DAASAPI + '/metadataTable/tables'
   }
 }
