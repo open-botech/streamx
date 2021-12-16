@@ -1,6 +1,6 @@
 <template>
   <div
-    :style="!$route.meta.hiddenHeaderContent ? 'margin: -24px -24px 0px;' : null">
+    :style="!$route.meta.hiddenHeaderContent ? 'margin: -24px -24px 0px;height:100%' : null">
     <!-- pageHeader , route meta :true on hide -->
     <div
       class="content">
@@ -86,7 +86,11 @@ export default {
 
 <style lang="less" scoped>
   .content {
+    height: 100%;
     margin: 24px 24px 0;
+    .page-header-index-wide{
+      height: 100%;
+    }
     .link {
       margin-top: 16px;
       &:not(:empty) {

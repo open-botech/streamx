@@ -24,6 +24,17 @@ const constRouter = [
     path: '/index',
     name: 'home',
     redirect: '/home'
+  },{
+    path: '/devflink',
+      component: BasicView,
+      children: [{
+        'path': '/devflink/app',
+        'component': PageView,
+        'children': [{
+          'path': '/devflink/app/flinkedit',
+          'component': () => import('@/views/flink/app/flinkEdit/index') ,
+        }]
+      }]
   }
   // ,{
   //   path: '/iframe',
