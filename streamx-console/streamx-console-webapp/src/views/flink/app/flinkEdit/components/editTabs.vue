@@ -12,22 +12,22 @@
 export default {
   data(){
     const panes = [
-      { title: 'Tab 1', content: 'Content of Tab 1', key: 1,closable: false },
-      { title: 'Tab 2', content: 'Content of Tab 2', key: 2 },
-      { title: 'Tab 3', content: 'Content of Tab 3', key: 3,  },
+      { title: 'Tab 1', content: 'Content of Tab 1', key: '1',closable: false },
+      { title: 'Tab 2', content: 'Content of Tab 2', key: '2' },
     ]
     return {
       panes,
       activeKey:1,
-      newTabIndex:1,
+      newTabIndex:100,
 
     }
   },
   methods:{
-    add() {
+    add(param={}) {
+      const {key,title,type}=param
       const panes = this.panes
-      const newTabIndex = this.newTabIndex++
-      panes.push({ title: 'New Tab', content: 'Content of new Tab', key: newTabIndex })
+      const newTabIndex =key|| this.newTabIndex++
+      panes.push({ title: title||'New Tab', type: type||'edit', key: newTabIndex })
       this.panes = panes
       this.activeKey = newTabIndex
     },
