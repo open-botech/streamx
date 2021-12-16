@@ -3,7 +3,9 @@
     <div class="flinkEdit">
       <a-row type="flex" class="top">
         <a-col flex="300px">hold-all</a-col>
-        <a-col flex="auto" class="edit">edit</a-col>
+        <a-col flex="auto" class="edit">
+          <EditTabs></EditTabs>
+        </a-col>
       </a-row>
       <div class="info">  
         info
@@ -13,8 +15,9 @@
 </template>
 
 <script>
+import EditTabs from './components/editTabs.vue'
 export default {
-
+  components:{EditTabs}
 }
 </script>
 <style lang="less" scoped>
