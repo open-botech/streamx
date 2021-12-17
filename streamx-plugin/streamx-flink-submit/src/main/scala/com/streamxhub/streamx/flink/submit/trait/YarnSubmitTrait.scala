@@ -136,6 +136,11 @@ trait YarnSubmitTrait extends FlinkSubmitTrait {
         case _ =>
       }
     })
+    val appConf = new Configuration()
+    submitRequest.appProperties.foreach( v => {
+      appConf.setString(v._1,v._2)
+    })
+    configuration.addAll(appConf)
     configuration.addAll(customConfiguration)
     //main class
     if (submitRequest.developmentMode == DevelopmentMode.CUSTOMCODE) {
