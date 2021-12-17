@@ -1980,6 +1980,7 @@ export default {
   margin: 0 auto;
 }
 .cardBox{
+  background:#000;
   height: 100%;
   min-height: 900px;
   display: flex;
