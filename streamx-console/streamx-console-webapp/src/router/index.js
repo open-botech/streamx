@@ -35,6 +35,18 @@ const constRouter = [
           'component': () => import('@/views/flink/app/flinkEdit/index') ,
         }]
       }]
+  },
+  {
+    path: '/discardflink',
+      component: BasicView,
+      children: [{
+        'path': '/discardflink/app',
+        'component': PageView,
+        'children': [{
+          'path': '/discardflink/app/flinkedit',
+          'component': () => import('@/views/flink/app/flinkEditDiscard/index') ,
+        }]
+      }]
   }
   // ,{
   //   path: '/iframe',
