@@ -115,7 +115,7 @@ trait YarnSubmitTrait extends FlinkSubmitTrait {
   }
 
   /**
-   * 页面定义参数优先级 > flink-conf.yaml中配置优先级
+   * 页面定义参数优先级 > appConf > flink-conf.yaml中配置优先级
    *
    * @param submitRequest
    * @param customConfiguration
