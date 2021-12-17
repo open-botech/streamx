@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { list } from '@/api/dataSource'
+import { list, table } from '@/api/dataSource'
 export default {
   data() {
     return {
@@ -20,8 +20,10 @@ export default {
   methods: {
     loadDataSource() {
       list({
-        current: 1,
-        size: 100
+        params: {
+          current: 1,
+          size: 100
+        }
       }).then(res => {
         if(res.code === 200) {
           this.initDataSourceList = res.data.records
@@ -30,7 +32,21 @@ export default {
         console.log(error)
       })
     },
-    loadTableData() {}
+    loadTableData(treeNode) {
+      if (treeNode.dataRef.children) {
+        resolve()
+        return
+      }else {
+        const dataSourceId = treeNode.dataRef.dataSourceId
+        if(dataSourceId) {
+          table({
+            params: {
+              
+            }
+          })
+        }
+      }
+    }
   }
 }
 </script>

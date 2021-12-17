@@ -1,5 +1,4 @@
-//const plugins = ['transform-remove-console']
-const plugins = []
+const plugins = process.env.NODE_ENV === 'production' ? ['transform-remove-console']: []
 plugins.push(['import', {
   'libraryName': 'Antd',
   'libraryDirectory': 'es',
