@@ -34,9 +34,13 @@ const constRouter = [
         'children': [{
           'path': '/devflink/app/flinkedit',
           'component': () => import('@/views/flink/app/flinkEdit/EditStreamX') ,
+        },{
+          'path': '/devflink/app/add',
+          'component': () => import('@/views/flink/app/flinkEdit/Add') ,
         }]
       }]
   },
+
   {
     path: '/discardflink',
       component: EmptyView,

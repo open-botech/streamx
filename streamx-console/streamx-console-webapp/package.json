@@ -17,6 +17,8 @@
     "@antv/data-set": "^0.10.1",
     "ant-design-vue": "^1.7.8",
     "axios": "^0.21.1",
+    "butterfly-dag": "^4.1.22",
+    "butterfly-vue": "^1.0.12",
     "core-js": "^3.8.3",
     "dedent": "^0.7.0",
     "enquire.js": "^2.1.6",

@@ -1,15 +1,16 @@
 <template>
-  <a-card
-    :body-style="{padding: '24px 32px'}"
-    :bordered="false"
-    class="app_controller">
-    <a-steps :current="current" style="margin:0 auto 30px;width:600px;">
-      <a-step title="编辑sql" />
-      <a-step title="jar包" />
-      <a-step title="配置" />
-    </a-steps>
-    <div class="form-box">
+  <div class="cardBox">
+    <a-card
+      :body-style="{padding: '24px 32px'}"
+      :bordered="false"
+      class="app_controller">
+      <a-steps :current="current" style="margin:0 auto 30px;width:600px;">
+        <a-step title="编辑sql" />
+        <a-step title="jar包" />
+        <a-step title="配置" />
+      </a-steps>
       <a-form
+        class="form"
         @submit="handleSubmit"
         :form="form"
         v-if="app!=null">
@@ -881,131 +882,127 @@
           </a-form-item>
         </div>
       </a-form>
+      <a-modal
+        v-model="controller.visiable.bigScreen"
+        width="100%"
+        class="bigScreen-sql-model"
+        :body-style="controller.modal.bigScreen.style"
+        :destroy-on-close="controller.modal.destroyOnClose"
+        @ok="handleBigScreenOk">
+        <template slot="title">
+          <svg-icon name="flinksql" size="middle"/>&nbsp; {{ controller.modal.bigScreen.title }}
+        </template>
+        <template slot="closeIcon">
+          <a-icon
+            type="fullscreen-exit"
+            @click="handleBigScreenClose"/>
+        </template>
+        <template slot="footer">
+          <span style="color: red;float: left">
+            <ellipsis :length="200">
+              {{ controller.flinkSql.errorMsg }}
+            </ellipsis>
+          </span>
+          <a-button
+            type="primary"
+            title="Format SQL"
+            @click="handleFormatSql">
+            <a-icon type="align-left"/>
+          </a-button>
+          <a-button
+            type="primary"
+            @click="handleBigScreenOk">
+            Apply
+          </a-button>
+        </template>
+        <div class="sql-box" id="big-sql" style="width: 100%;" :class="'syntax-' + controller.flinkSql.success"></div>
+      </a-modal>
+
+      <a-modal
+        v-model="compareVisible"
+        on-ok="handleCompareOk"
+        v-if="compareVisible">
+        <template
+          slot="title">
+          <a-icon
+            type="swap"
+            style="color: #4a9ff5"/>
+          Compare Flink SQL
+        </template>
+        <a-form
+          @submit="handleCompareOk"
+          :form="formCompare">
+          <a-form-item
+            v-if="flinkSqlHistory.length > 1"
+            label="Version"
+            :label-col="{lg: {span: 5}, sm: {span: 7}}"
+            :wrapper-col="{lg: {span: 16}, sm: {span: 17} }"
+            class="form-required">
+            <a-select
+              v-decorator="[ 'compare_sql' ]"
+              placeholder="Please select the sql version to compare"
+              mode="multiple"
+              @change="handleChangeSQLCompact"
+              class="version-select"
+              :max-tag-count="2">
+              <a-select-option
+                v-for="(ver,index) in flinkSqlHistory"
+                :value="ver.id"
+                :key="`sql_${index}`">
+                <div>
+                  <a-button
+                    type="primary"
+                    shape="circle"
+                    size="small">
+                    {{ ver.version }}
+                  </a-button>
+                  <a-tag
+                    color="green"
+                    style="margin-left: 5px;"
+                    size="small"
+                    v-if="ver.effective">
+                    Effective
+                  </a-tag>
+                  <a-tag
+                    color="cyan"
+                    style=";margin-left: 5px;"
+                    size="small"
+                    v-if="ver.candidate == 1 || ver.candidate == 2">
+                    Candidate
+                  </a-tag>
+                </div>
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-form>
+        <template
+          slot="footer">
+          <a-button
+            @click="handleCompareCancel">
+            Close
+          </a-button>
+          <a-button
+            type="compare"
+            @click="handleCompareOk">
+            Compare
+          </a-button>
+        </template>
+      </a-modal>
+
+      <Mergely
+        ref="mergely"
+        @close="handleEditConfClose"
+        @ok="handleEditConfOk"
+        :visiable="controller.visiable.mergely" />
+
+      <Different ref="different"/>
+
+    </a-card>
+    
+    <div class="info">
+      <div class="title">血缘</div>
     </div>
-    <a-tabs default-active-key="1" class="info">
-      <a-tab-pane key="1" tab="血缘">
-        <div>
-
-        </div>
-      </a-tab-pane>
-    </a-tabs>
-
-    <a-modal
-      v-model="controller.visiable.bigScreen"
-      width="100%"
-      class="bigScreen-sql-model"
-      :body-style="controller.modal.bigScreen.style"
-      :destroy-on-close="controller.modal.destroyOnClose"
-      @ok="handleBigScreenOk">
-      <template slot="title">
-        <svg-icon name="flinksql" size="middle"/>&nbsp; {{ controller.modal.bigScreen.title }}
-      </template>
-      <template slot="closeIcon">
-        <a-icon
-          type="fullscreen-exit"
-          @click="handleBigScreenClose"/>
-      </template>
-      <template slot="footer">
-        <span style="color: red;float: left">
-          <ellipsis :length="200">
-            {{ controller.flinkSql.errorMsg }}
-          </ellipsis>
-        </span>
-        <a-button
-          type="primary"
-          title="Format SQL"
-          @click="handleFormatSql">
-          <a-icon type="align-left"/>
-        </a-button>
-        <a-button
-          type="primary"
-          @click="handleBigScreenOk">
-          Apply
-        </a-button>
-      </template>
-      <div class="sql-box" id="big-sql" style="width: 100%;" :class="'syntax-' + controller.flinkSql.success"></div>
-    </a-modal>
-
-    <a-modal
-      v-model="compareVisible"
-      on-ok="handleCompareOk"
-      v-if="compareVisible">
-      <template
-        slot="title">
-        <a-icon
-          type="swap"
-          style="color: #4a9ff5"/>
-        Compare Flink SQL
-      </template>
-      <a-form
-        @submit="handleCompareOk"
-        :form="formCompare">
-        <a-form-item
-          v-if="flinkSqlHistory.length > 1"
-          label="Version"
-          :label-col="{lg: {span: 5}, sm: {span: 7}}"
-          :wrapper-col="{lg: {span: 16}, sm: {span: 17} }"
-          class="form-required">
-          <a-select
-            v-decorator="[ 'compare_sql' ]"
-            placeholder="Please select the sql version to compare"
-            mode="multiple"
-            @change="handleChangeSQLCompact"
-            class="version-select"
-            :max-tag-count="2">
-            <a-select-option
-              v-for="(ver,index) in flinkSqlHistory"
-              :value="ver.id"
-              :key="`sql_${index}`">
-              <div>
-                <a-button
-                  type="primary"
-                  shape="circle"
-                  size="small">
-                  {{ ver.version }}
-                </a-button>
-                <a-tag
-                  color="green"
-                  style="margin-left: 5px;"
-                  size="small"
-                  v-if="ver.effective">
-                  Effective
-                </a-tag>
-                <a-tag
-                  color="cyan"
-                  style=";margin-left: 5px;"
-                  size="small"
-                  v-if="ver.candidate == 1 || ver.candidate == 2">
-                  Candidate
-                </a-tag>
-              </div>
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-      <template
-        slot="footer">
-        <a-button
-          @click="handleCompareCancel">
-          Close
-        </a-button>
-        <a-button
-          type="compare"
-          @click="handleCompareOk">
-          Compare
-        </a-button>
-      </template>
-    </a-modal>
-
-    <Mergely
-      ref="mergely"
-      @close="handleEditConfClose"
-      @ok="handleEditConfOk"
-      :visiable="controller.visiable.mergely" />
-
-    <Different ref="different"/>
-
-  </a-card>
+  </div>
 </template>
 
 <script>
@@ -1038,7 +1035,7 @@ import {list as listFlinkEnv} from '@/api/flinkenv'
 
 export default {
   name: 'EditStreamX',
-  components: { Mergely, Different, Ellipsis, SvgIcon },
+  components: { Mergely, Different, Ellipsis, SvgIcon},
   data() {
     return {
       current:0,//步骤条控制
@@ -1965,29 +1962,45 @@ export default {
 
 .app_controller{
   .ant-card-body{
+    height: 100%;
     display: flex;
     flex-direction: column;
   }
 }
+.butterflies-link {
+    stroke-width: 3px;
+      stroke: #776ef3;
+  }
 
 </style>
 <style lang="less" scoped>
 .setpContent{
   width:900px;
+  height: 100%;
   margin: 0 auto;
 }
-
-.app_controller{
+.cardBox{
   height: 100%;
-  position: relative;
-  
-  .form-box{
-    flex:2;
-    overflow: auto;
-  }
+  min-height: 900px;
+  display: flex;
+  flex-direction: column;
   .info{
     flex:1;
-    border-top: 1px solid #434343;
+    background: #141414;
+    margin-top:20px;
+    .title{
+      padding:0 30px;
+      font-size:16px;
+      line-height: 56px;
+      border-bottom:1px solid rgba(255, 255, 255, 0.12);
+    }
+  }
+}
+.app_controller{ 
+  position: relative;
+  .form{
+    height: 500px;
+    overflow: auto;
   }
   .submit-btn{
     position: absolute;

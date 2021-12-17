@@ -14,14 +14,6 @@ export default {
   components:{
     ButterflyVue
   },
-  props:{
-    bloodData:{
-      type:Object,
-      default(){
-        return {}
-      }
-    }
-  },
   data(){
     return {
       mockData,
@@ -62,7 +54,7 @@ export default {
 .topologyBox{
   height: 100%;
   width: 100%;
-  background: #fff;
+  /* background: #fff; */
   position: relative;
 }
 </style>
