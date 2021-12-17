@@ -34,6 +34,12 @@ const constRouter = [
         'children': [{
           'path': '/devflink/app/flinkedit',
           'component': () => import('@/views/flink/app/flinkEdit/EditStreamX') ,
+        },{
+          'path': '/devflink/app/costumedit',
+          'component': () => import('@/views/flink/app/costumEdit/CostumEdit') ,
+        },{
+          'path': '/devflink/app/costumadd',
+          'component': () => import('@/views/flink/app/costumAdd/CostumAdd') ,
         }]
       }]
   },
