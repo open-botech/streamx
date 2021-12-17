@@ -24,7 +24,8 @@ const constRouter = [
     path: '/index',
     name: 'home',
     redirect: '/home'
-  },{
+  },
+  {
     path: '/devflink',
       component: BasicView,
       children: [{
@@ -32,7 +33,7 @@ const constRouter = [
         'component': PageView,
         'children': [{
           'path': '/devflink/app/flinkedit',
-          'component': () => import('@/views/flink/app/flinkEdit/index') ,
+          'component': () => import('@/views/flink/app/flinkEdit/EditStreamX') ,
         }]
       }]
   },

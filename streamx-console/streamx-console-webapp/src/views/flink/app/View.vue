@@ -1568,7 +1568,7 @@
     handleEdit(app) {
       this.SetAppId(app.id)
       if (app.appType === 1) {
-        this.$router.push({'path': '/flink/app/edit_streamx'})
+        this.$router.push({'path': '/devflink/app/flinkedit'})
       } else {
         this.$router.push({'path': '/flink/app/edit_flink'})
       }
