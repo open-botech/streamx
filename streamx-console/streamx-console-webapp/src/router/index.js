@@ -27,7 +27,7 @@ const constRouter = [
   },
   {
     path: '/devflink',
-      component: BasicView,
+      component: process.env.NODE_VIEW=='empty'?EmptyView:BasicView,
       children: [{
         'path': '/devflink/app',
         'component': PageView,

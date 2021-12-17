@@ -857,7 +857,34 @@
           ref="terminal"
           class="terminal"/>
       </a-modal>
-
+      <a-modal v-model="modeVisible">
+        <template slot="title">
+          Development Mode
+        </template>
+        <div style="padding: 0 20px ">
+          <a-select
+            style="width:100%;margin:20px 0"
+            v-model="devMode"
+            placeholder="Please select Development Mode">
+            <a-select-option
+              value="customcode">
+              Custom Code
+            </a-select-option>
+            <a-select-option
+              value="sql">
+              Flink SQL
+            </a-select-option>
+          </a-select>
+        </div>
+        <template slot="footer">
+          <a-button
+            key="submit"
+            type="primary"
+            @click="modeSelectSure">
+            sure
+          </a-button>
+        </template>
+      </a-modal>
     </a-card>
   </div>
 </template>
@@ -880,6 +907,8 @@
   components: {Ellipsis, State, SvgIcon},
   data() {
     return {
+      modeVisible:false,
+      devMode:'sql',
       loading: false,
       dashLoading: true,
       dashBigScreen: true,
@@ -1075,7 +1104,14 @@
 
   methods: {
     ...mapActions(['SetAppId']),
-
+    modeSelectSure(){
+      if(this.devMode=='sql'){
+        this.$router.push({'path': '/devflink/app/add'})
+      }else{
+        this.$router.push({'path': '/devflink/app/costumadd'})
+      }
+      
+    },
     viewTaskDetail(name) {
       console.log(name)
       this.queryParams['jobName'] = name
@@ -1569,7 +1605,8 @@
     },
 
     handleAdd() {
-      this.$router.push({'path': '/devflink/app/add'})
+      this.modeVisible=true
+      //this.$router.push({'path': '/devflink/app/add'})
     },
 
     handleEdit(app) {
