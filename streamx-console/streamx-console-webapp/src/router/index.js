@@ -39,7 +39,7 @@ const constRouter = [
   },
   {
     path: '/discardflink',
-      component: BasicView,
+      component: EmptyView,
       children: [{
         'path': '/discardflink/app',
         'component': PageView,

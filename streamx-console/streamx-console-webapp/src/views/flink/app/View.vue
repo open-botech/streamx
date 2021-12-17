@@ -437,6 +437,19 @@
             v-permit="'app:deploy'"
             class="pointer"
             @click.native="handleDeploy(record)"/>
+
+          <!--新编辑按钮-->
+          <svg-icon
+            name="edit"
+            border
+            v-if="record.deploy !== 6"
+            v-permit="'app:update'"
+            type="setting"
+            theme="twoTone"
+            two-tone-color="#4a9ff5"
+            @click.native="handleNewEdit(record)"
+            title="New Edit"/>  
+
           <!--已经发布完的项目,不允许再次编辑-->
           <svg-icon
             name="edit"
@@ -1563,6 +1576,14 @@
 
     handleAdd() {
       this.$router.push({'path': '/flink/app/add'})
+    },
+
+    handleNewEdit(app) {
+      this.SetAppId(app.id)
+      this.$router.push({'path': '/devflink/app/flinkedit'})
+      // this.$router.push({
+      //   'path': '/discardflink/app/flinkedit'
+      // })
     },
 
     handleEdit(app) {
