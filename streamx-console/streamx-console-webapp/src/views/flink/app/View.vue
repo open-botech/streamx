@@ -1572,14 +1572,6 @@
       this.$router.push({'path': '/devflink/app/add'})
     },
 
-    handleNewEdit(app) {
-      this.SetAppId(app.id)
-      this.$router.push({'path': '/devflink/app/flinkedit'})
-      // this.$router.push({
-      //   'path': '/discardflink/app/flinkedit'
-      // })
-    },
-
     handleEdit(app) {
       this.SetAppId(app.id)
       if (app.appType === 1) {
