@@ -1088,6 +1088,12 @@
   methods: {
     ...mapActions(['SetAppId']),
 
+    viewTaskDetail(name) {
+      console.log(name)
+      this.queryParams['jobName'] = name
+      this.handleFetch(false)
+    },
+
     handleResize() {
       const $this = this
       window.onresize = () => {

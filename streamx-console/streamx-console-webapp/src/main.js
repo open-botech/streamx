@@ -34,7 +34,7 @@ import './utils/filter' // global filter
 
 Vue.config.productionTip = false
 
-new Vue({
+window.app = new Vue({
   router,
   store,
   $,
