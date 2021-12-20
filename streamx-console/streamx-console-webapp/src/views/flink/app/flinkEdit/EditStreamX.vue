@@ -1000,7 +1000,14 @@
     </a-card>
     
     <div class="info">
-      <div class="title">血缘</div>
+      <div class="title">
+        血缘
+        <a-button style="margin-left:20px" @click="generateKinship">生成血缘</a-button>
+      </div>
+      
+      <div class="topologyDiv">
+        <Topology></Topology>
+      </div>
     </div>
   </div>
 </template>
@@ -1016,6 +1023,7 @@ import Mergely from '../Mergely'
 import Different from '../Different'
 import configOptions from '../Option'
 import SvgIcon from '@/components/SvgIcon'
+import Topology from '@/components/newTopology'
 
 const Base64 = require('js-base64').Base64
 import {
@@ -1035,7 +1043,7 @@ import {list as listFlinkEnv} from '@/api/flinkenv'
 
 export default {
   name: 'EditStreamX',
-  components: { Mergely, Different, Ellipsis, SvgIcon},
+  components: { Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
       current:0,//步骤条控制
@@ -1219,6 +1227,11 @@ export default {
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
+    //生成血缘
+    generateKinship(){
+      console.log(this.controller.flinkSql.value)
+       
+    },
     filterOption(input, option) {
       return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
     },
@@ -1967,10 +1980,6 @@ export default {
     flex-direction: column;
   }
 }
-.butterflies-link {
-    stroke-width: 3px;
-      stroke: #776ef3;
-  }
 
 </style>
 <style lang="less" scoped>
@@ -1987,6 +1996,8 @@ export default {
   flex-direction: column;
   .info{
     flex:1;
+    display: flex;
+    flex-direction: column;
     background: #141414;
     margin-top:20px;
     .title{
@@ -1994,6 +2005,10 @@ export default {
       font-size:16px;
       line-height: 56px;
       border-bottom:1px solid rgba(255, 255, 255, 0.12);
+    }
+    .topologyDiv{
+      flex: 1;
+      position: relative;
     }
   }
 }

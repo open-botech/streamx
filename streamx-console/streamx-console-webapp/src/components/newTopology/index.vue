@@ -22,8 +22,8 @@ export default {
           type: 'dagreLayout',
           options: {
             rankdir: 'LR',
-            nodesep: 40,
-            ranksep: 40,
+            nodesep: 60,
+            ranksep: 80,
             controlPoints: false,
           },
         },
@@ -34,9 +34,9 @@ export default {
         moveable: true, // 可平移
         theme: {
           edge: {
-            arrow: true,//箭头
+            arrow: false,//箭头
             type: 'Manhattan',
-            isExpandWidth: true,//增加线条交互区域
+            isExpandWidth: false,//增加线条交互区域
             defaultAnimate: true//默认开启线条动画
           }
         }

@@ -6,6 +6,7 @@
 // import {Canvas} from 'butterfly-dag'
 import DagreCanvas from './dagresCanvas'
 import RelationEdge from './edge'
+import 'butterfly-dag/dist/index.css'
 export default {
   props:{
     // canvasData:{
@@ -43,8 +44,6 @@ export default {
   },
   methods:{
     canvasDraw(data){
-      console.log(data)
-      console.log(this.canvas)
       this.canvas.draw({
         ...data,
       })
@@ -53,12 +52,9 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 #butterFly{
   height: 100%;
-  position: absolute;
   width: 100%;
 }
-</style>
-<style scoped>
 </style>

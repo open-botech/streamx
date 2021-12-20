@@ -2,7 +2,7 @@ import $ from 'jquery'
 import {Node} from 'butterfly-dag'
 import Vue from 'vue/dist/vue.esm.js'
 import './base_node.less'
-
+import NodeTemp from './nodeTemplate.vue'
 class BaseNode extends Node {
   constructor(opts) {
     super(opts)
@@ -29,7 +29,8 @@ class BaseNode extends Node {
       
     }
     const content=Vue.extend({
-      template:'<div :id="opts.id" @click="nodeClick(opts.id)" class="relation-node" :style="css"><div class="logo-container">{{opts.options.name}}</div></div>',
+      template:'<div :id="opts.id" @click="nodeClick(opts.id)" class="relation-node" :style="css"><div class="logo-container"><NodeTemp :name="opts.options.name" /></div></div>',
+      components:{NodeTemp},
       data(){
         return {
           opts:opts,

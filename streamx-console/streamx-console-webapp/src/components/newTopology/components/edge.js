@@ -11,7 +11,7 @@ class RelationEdge extends Edge {
   }
 
   drawArrow(isShow) {
-    const dom = super.drawArrow(isShow)
+    const dom = super.drawArrow(false)
     if (this.options.color) {
       $(dom).addClass(this.options.color)
     }
