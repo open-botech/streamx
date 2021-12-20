@@ -43,6 +43,9 @@ const constRouter = [
         },{
           'path': '/devflink/app/costumadd',
           'component': () => import('@/views/flink/app/costumAdd/CostumAdd') ,
+        },{
+          'path': '/devflink/app/fly',
+          'component': () => import('@/components/newTopology/index.vue') ,
         }]
       }]
   },
