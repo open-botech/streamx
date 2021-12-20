@@ -59,7 +59,9 @@
                 successful
               </span>
             </p>
-            <div class="sql-box" id="flink-sql" :class="'syntax-' + controller.flinkSql.success"></div>
+            <div class="sql-box" style="position:relative" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
+              <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship">生成血缘</a-button>
+            </div>
             <a-icon
               class="format-sql"
               type="align-left"
@@ -998,17 +1000,17 @@
       <Different ref="different"/>
 
     </a-card>
-    
-    <div class="info">
-      <div class="title">
-        血缘
-        <a-button style="margin-left:20px" @click="generateKinship">生成血缘</a-button>
-      </div>
-      
+    <a-drawer
+      title="血缘"
+      placement="bottom"
+      :closable="true"
+      height="600px"
+      :visible="kinShipVisible"
+      @close="onClose">
       <div class="topologyDiv">
-        <Topology></Topology>
+        <Topology :data="kinshipData"></Topology>
       </div>
-    </div>
+    </a-drawer>
   </div>
 </template>
 
@@ -1017,7 +1019,7 @@ import Ellipsis from '@/components/Ellipsis'
 import { listConf } from '@api/project'
 import { get, update, exists, name, readConf, upload } from '@api/application'
 import { history as confhistory, get as getVer, template } from '@api/config'
-import { get as getSQL, history as sqlhistory } from '@api/flinksql'
+import { get as getSQL, history as sqlhistory,kinship } from '@api/flinksql'
 import { mapActions, mapGetters } from 'vuex'
 import Mergely from '../Mergely'
 import Different from '../Different'
@@ -1040,12 +1042,20 @@ import {
 
 import { toPomString } from '../Pom'
 import {list as listFlinkEnv} from '@/api/flinkenv'
-
+import node from '@/components/newTopology/components/node'
+import edge from '@/components/newTopology/components/edge'
 export default {
   name: 'EditStreamX',
   components: { Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
+      //血缘数据
+      kinshipData:{
+        nodes : [] ,
+        edges : []
+      },
+      //控制血缘抽屉
+      kinShipVisible:false,
       current:0,//步骤条控制
       strategy: 1,
       app: null,
@@ -1229,8 +1239,61 @@ export default {
     ...mapGetters(['applicationId']),
     //生成血缘
     generateKinship(){
-      console.log(this.controller.flinkSql.value)
-       
+      verifySQL(this,(success)=>{
+        if(success){
+          kinship({
+            sql:this.controller.flinkSql.value,
+            versionId:this.versionId
+          }).then(res=>{
+            if(res){
+              const data = this.formatKinshipData(res)
+              console.log(data)
+              this.kinshipData = data
+              this.kinShipVisible = true
+            }else{
+              this.$message.error('无法解析血缘')
+            }
+            console.log(res)
+          })
+          // this.versionId
+        }
+      })
+    },
+    //格式化数据用于生成血缘图
+    formatKinshipData(data){
+      const nodes = []
+      const edges = []
+      data.inputTables.forEach((inputItem,index)=>{
+        const iptId='ipt'+index
+        nodes.push({
+          id:iptId,
+          name:inputItem.table?inputItem.table:inputItem.connector,
+          Class:node
+        })
+        data.outputTables.forEach((outputItem,idx)=>{
+          const optId = 'opt'+idx
+          if(index==0){
+            nodes.push({
+              id:optId,
+              name:outputItem.table?outputItem.table:outputItem.connector,
+              Class:node
+            })
+          }
+          edges.push({
+            source: iptId,
+            target: optId,
+            Class:edge
+          })
+        })
+      })
+      return {
+        nodes,
+        edges
+      }
+    },
+
+    onClose() {
+      this.kinShipVisible = false
     },
     filterOption(input, option) {
       return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -1991,33 +2054,13 @@ export default {
 .cardBox{
   background:#000;
   height: 100%;
-  min-height: 900px;
-  display: flex;
-  flex-direction: column;
-  .info{
-    flex:1;
-    display: flex;
-    flex-direction: column;
-    background: #141414;
-    margin-top:20px;
-    .title{
-      padding:0 30px;
-      font-size:16px;
-      line-height: 56px;
-      border-bottom:1px solid rgba(255, 255, 255, 0.12);
-    }
-    .topologyDiv{
-      flex: 1;
-      position: relative;
-    }
-  }
 }
+.topologyDiv{
+    height: 100%;
+    position: relative;
+  }
 .app_controller{ 
   position: relative;
-  .form{
-    height: 500px;
-    overflow: auto;
-  }
   .submit-btn{
     position: absolute;
     right:50px;

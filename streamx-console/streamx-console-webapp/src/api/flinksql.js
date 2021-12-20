@@ -33,3 +33,8 @@ export function get (params) {
 export function history (params) {
   return http.post(api.FlinkSQL.HISTORY, params)
 }
+//根据sql生成血缘
+export function kinship (params) {
+  return http.post(api.FlinkSQL.KINSHIP, params)
+}
+

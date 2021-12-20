@@ -9,12 +9,6 @@ import RelationEdge from './edge'
 import 'butterfly-dag/dist/index.css'
 export default {
   props:{
-    // canvasData:{
-    //   type:Object,
-    //   default:()=>{
-    //     return {}
-    //   }
-    // },
     canvasConf:{
       type:Object,
       default:()=>{
@@ -28,7 +22,6 @@ export default {
     }
   },
   mounted(){
-    console.log(this.canvasConf)
     this.canvas = new DagreCanvas({
       root: this.$refs.butterFly,              //canvas的根节点(必传)
       ...this.canvasConf,
@@ -48,6 +41,12 @@ export default {
         ...data,
       })
     },
+    canvasReDraw(data){
+      this.canvas.redraw({
+        ...data,
+      })
+    },
+
   }
 }
 </script>

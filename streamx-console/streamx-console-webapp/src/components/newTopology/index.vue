@@ -2,7 +2,6 @@
   <div class="topologyBox">
     <ButterflyVue
       ref="butterflyVue"
-      :canvas-data="mockData"
       :canvas-conf="options"></ButterflyVue>
   </div>
 </template>
@@ -14,9 +13,27 @@ export default {
   components:{
     ButterflyVue
   },
+  props:{
+    data:{
+      type:Object,
+      default(){
+        return {
+          nodes:[],
+          edges:[]
+        }
+      }
+    }
+  },
+  watch:{
+    data(val){
+      if(this.createFlag==true){
+        this.$refs.butterflyVue.canvasReDraw(val)
+      }
+    }
+  },
   data(){
     return {
-      mockData,
+      createFlag:false,
       options:{
         layout: {
           type: 'dagreLayout',
@@ -44,7 +61,8 @@ export default {
     }
   },
   mounted(){
-    this.$refs.butterflyVue.canvasDraw(this.mockData)
+    this.$refs.butterflyVue.canvasDraw(this.data)
+    this.createFlag=true
   },
 
 }
@@ -52,7 +70,7 @@ export default {
 
 <style>
 .topologyBox{
-  height: 100%;
+  height: 400px;
   width: 100%;
   /* background: #fff; */
   position: relative;

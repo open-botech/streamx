@@ -1,5 +1,5 @@
 <template>
-  <div class="ellipsis nodeBox" title="name"> {{ name }}</div>
+  <div class="ellipsis nodeBox" :title="name"> {{ name }}</div>
 </template>
 
 <script>

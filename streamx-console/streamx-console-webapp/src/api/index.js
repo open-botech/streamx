@@ -102,7 +102,8 @@ export default {
   FlinkSQL: {
     VERIFY: STREAMXAPI + '/flink/sql/verify',
     GET: STREAMXAPI + '/flink/sql/get',
-    HISTORY: STREAMXAPI + '/flink/sql/history'
+    HISTORY: STREAMXAPI + '/flink/sql/history',
+    KINSHIP: STREAMXAPI + '/flink/sql/lineage'
   },
   SETTING: {
     GET: STREAMXAPI + '/flink/setting/get',
