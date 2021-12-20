@@ -2060,6 +2060,7 @@ export default {
     position: relative;
   }
 .app_controller{ 
+  height: 100%;
   position: relative;
   .submit-btn{
     position: absolute;
