@@ -40,7 +40,8 @@ export default {
     LISTCONF: STREAMXAPI + '/flink/project/listconf',
     JARS: STREAMXAPI + '/flink/project/jars',
     DELETE: STREAMXAPI + '/flink/project/delete',
-    SELECT: STREAMXAPI + '/flink/project/select'
+    SELECT: STREAMXAPI + '/flink/project/select',
+    PROJAR:STREAMXAPI + '/flink/project/upload'
   },
   Tutorial: {
     GET: STREAMXAPI + '/tutorial/get'
@@ -81,7 +82,7 @@ export default {
     ROLLBACK: STREAMXAPI + '/flink/app/rollback',
     REVOKE: STREAMXAPI + '/flink/app/revoke',
     STARTLOG: STREAMXAPI + '/flink/app/startlog',
-    CHECKJAR: STREAMXAPI + '/flink/app/checkjar'
+    CHECKJAR: STREAMXAPI + '/flink/app/checkjar',
   },
   Config: {
     GET: STREAMXAPI + '/flink/conf/get',

@@ -213,7 +213,7 @@ function buildRouter (routes) {
     if (route.component) {
       switch (route.component) {
         case 'BasicView':
-          route.component = process.env.NODE_VIEW=='empty'?EmptyView:BasicView
+          route.component = BasicView
           break
         case 'RouteView':
           route.component = RouteView
