@@ -4,7 +4,7 @@
       :body-style="{padding: '24px 32px'}"
       :bordered="false"
       class="app_controller">
-      <a-steps :current="current" style="margin:0 auto 30px;width:600px;">
+      <a-steps :current="current" style="margin:0 auto 30px;width:600px;" @change="onStepsChange">
         <a-step title="编辑sql" />
         <a-step title="jar包" />
         <a-step title="配置" />
@@ -1238,6 +1238,9 @@ export default {
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
+    onStepsChange(current){
+      this.current=current
+    },
     //生成血缘
     generateKinship(){
       this.kinshipLoading=true
