@@ -60,7 +60,7 @@
               </span>
             </p>
             <div class="sql-box" style="position:relative" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
-              <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship">生成血缘</a-button>
+              <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship" :loading="kinshipLoading">生成血缘</a-button>
             </div>
             <a-icon
               class="format-sql"
@@ -1056,6 +1056,7 @@ export default {
       },
       //控制血缘抽屉
       kinShipVisible:false,
+      kinshipLoading:false,
       current:0,//步骤条控制
       strategy: 1,
       app: null,
@@ -1239,6 +1240,7 @@ export default {
     ...mapGetters(['applicationId']),
     //生成血缘
     generateKinship(){
+      this.kinshipLoading=true
       verifySQL(this,(success)=>{
         if(success){
           kinship({
@@ -1253,9 +1255,11 @@ export default {
             }else{
               this.$message.error('无法解析血缘')
             }
-            console.log(res)
+            this.kinshipLoading=false
           })
           // this.versionId
+        }else{
+          this.kinshipLoading=false
         }
       })
     },
