@@ -145,7 +145,6 @@ router.beforeEach((to, from, next) => {
   }
   const token = storage.get(TOKEN)
   if (token) {
-    console.log(11111)
     if (!asyncRouter) {
       // 如果用户路由不存在
       const routers = store.getters.routers
@@ -157,19 +156,23 @@ router.beforeEach((to, from, next) => {
         store.dispatch('GetRouter', {}).then((resp) => {
           asyncRouter.push(...resp)
           go(to, next)
-        }).catch(() => {
+        }).catch(async () => {
           // notification.error({
           //   message: 'Request failed, please try again'
           // })
-          store.dispatch('SignIn',{
+          await store.dispatch('SignIn',{
             username: 'admin',
             password: 'streamx'
-          }).then(()=>{
-            location.reload()  
           })
+          location.reload()
+          NProgress.done()
           // store.dispatch('SignOut').then(() => { 
+          //   const redirect=to.name=='signin'?{}:{
+          //     redirect:to.fullPath
+          //   }
           //   //正常跳转登录
-          //   // next({ path: '/user/signin', query: { redirect: to.fullPath } })
+          //   next({ path: '/user/signin', query: { ...redirect } })
+            
           // })
         })
       }
@@ -177,17 +180,22 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
+    console.log(to)
     store.dispatch('SignIn',{
       username: 'admin',
       password: 'streamx'
     }).then(()=>{
       location.reload()  
     })
+    NProgress.done()
     // if (whiteList.includes(to.name)) {
     //   next()
     // } else {
-    //   next({ name: 'signin', query: { redirect: to.fullPath } })
-    //   NProgress.done()
+    //   const redirect=to.name=='signin'?{}:{
+    //     redirect:to.fullPath
+    //   }
+    //   next({ name: 'signin', query: { ...redirect } })
+    //   
     // }
   }
 })
