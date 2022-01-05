@@ -62,3 +62,18 @@
   top: -999em !important;
   left: -999em !important;
 }
+//解决暗色系样式BUG
+.night{
+  .ant-btn-primary{
+    color:rgb(255,255,255,.65)
+  }
+  .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover{
+    color:rgb(255,255,255,.65)
+  }
+  .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
+    color:rgb(255,255,255,.65)
+  }
+  .ant-tag-has-color, .ant-tag-has-color a, .ant-tag-has-color a:hover, .ant-tag-has-color .anticon-close, .ant-tag-has-color .anticon-close:hover {
+    color: rgb(255,255,255,.65);
+  }
+}

@@ -1,225 +1,228 @@
 <template>
   <div>
-    <a-row :gutter="24" class="dashboard">
-      <template v-if="dashBigScreen">
-        <a-col class="gutter-row" :span="6">
-          <div class="gutter-box">
-            <a-card :loading="dashLoading" :bordered="false" class="dash-statistic">
-              <a-statistic
-                title="Available Task Slots"
-                :value="metrics.availableSlot"
-                :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-            </a-card>
-            <a-divider style="margin-bottom: 10px"/>
-            <div>
-              <span>
-                Task Slots
-                <strong>{{ metrics.totalSlot }}</strong>
-              </span>
+    <div class="dashboard-box">
+      <a-row :gutter="24" class="dashboard">
+        <template v-if="dashBigScreen">
+          <a-col class="gutter-row" :span="6">
+            <div class="gutter-box">
+              <a-card :loading="dashLoading" :bordered="false" class="dash-statistic">
+                <a-statistic
+                  title="Available Task Slots"
+                  :value="metrics.availableSlot"
+                  :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+              </a-card>
+              <a-divider style="margin-bottom: 10px"/>
+              <div>
+                <span>
+                  Task Slots
+                  <strong>{{ metrics.totalSlot }}</strong>
+                </span>
+                <a-divider
+                  type="vertical"/>
+                <span>
+                  Task Managers
+                  <strong>{{ metrics.totalTM }}</strong>
+                </span>
+              </div>
+            </div>
+          </a-col>
+          <a-col class="gutter-row" :span="6">
+            <div class="gutter-box">
+              <a-card :loading="dashLoading" :bordered="false" class="dash-statistic">
+                <a-statistic
+                  title="Running Jobs"
+                  :value="metrics['runningJob']"
+                  :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+              </a-card>
+              <a-divider style="margin-bottom: 10px"/>
+              <div>
+                <span>
+                  Total Task
+                  <strong>{{ metrics.task.total }}</strong>
+                </span>
+                <a-divider type="vertical"/>
+                <span>
+                  Running Task
+                  <strong>{{ metrics.task.running }}</strong>
+                </span>
+              </div>
+            </div>
+          </a-col>
+          <a-col class="gutter-row" :span="6">
+            <div class="gutter-box">
+              <a-card :loading="dashLoading" :bordered="false" class="dash-statistic">
+                <a-statistic
+                  title="JobManager Memory"
+                  :value="metrics.jmMemory"
+                  :precision="0"
+                  suffix="MB"
+                  :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+              </a-card>
+              <a-divider style="margin-bottom: 10px"/>
+              <div>
+                <span>
+                  Total JobManager Mem
+                  <strong>{{ metrics.jmMemory }} MB</strong>
+                </span>
+              </div>
+            </div>
+          </a-col>
+          <a-col
+            class="gutter-row"
+            :span="6">
+            <div class="gutter-box">
+              <a-card
+                :loading="dashLoading"
+                :bordered="false"
+                class="dash-statistic">
+                <a-statistic
+                  title="TaskManager Memory"
+                  :value="metrics.tmMemory"
+                  :precision="0"
+                  suffix="MB"
+                  :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+              </a-card>
               <a-divider
-                type="vertical"/>
-              <span>
-                Task Managers
-                <strong>{{ metrics.totalTM }}</strong>
-              </span>
+                style="margin-bottom: 10px"/>
+              <div>
+                <span>
+                  Total TaskManager Mem
+                  <strong>{{ metrics.tmMemory }} MB</strong>
+                </span>
+              </div>
             </div>
-          </div>
-        </a-col>
-        <a-col class="gutter-row" :span="6">
-          <div class="gutter-box">
-            <a-card :loading="dashLoading" :bordered="false" class="dash-statistic">
-              <a-statistic
-                title="Running Jobs"
-                :value="metrics['runningJob']"
-                :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-            </a-card>
-            <a-divider style="margin-bottom: 10px"/>
-            <div>
-              <span>
-                Total Task
-                <strong>{{ metrics.task.total }}</strong>
-              </span>
-              <a-divider type="vertical"/>
-              <span>
-                Running Task
-                <strong>{{ metrics.task.running }}</strong>
-              </span>
-            </div>
-          </div>
-        </a-col>
-        <a-col class="gutter-row" :span="6">
-          <div class="gutter-box">
-            <a-card :loading="dashLoading" :bordered="false" class="dash-statistic">
-              <a-statistic
-                title="JobManager Memory"
-                :value="metrics.jmMemory"
-                :precision="0"
-                suffix="MB"
-                :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-            </a-card>
-            <a-divider style="margin-bottom: 10px"/>
-            <div>
-              <span>
-                Total JobManager Mem
-                <strong>{{ metrics.jmMemory }} MB</strong>
-              </span>
-            </div>
-          </div>
-        </a-col>
-        <a-col
-          class="gutter-row"
-          :span="6">
-          <div class="gutter-box">
-            <a-card
+          </a-col>
+        </template>
+        <template
+          v-else>
+          <a-col
+            class="gutter-row"
+            :span="12">
+            <a-skeleton
+              v-if="dashLoading"
+              class="gutter-box"
               :loading="dashLoading"
-              :bordered="false"
-              class="dash-statistic">
-              <a-statistic
-                title="TaskManager Memory"
-                :value="metrics.tmMemory"
-                :precision="0"
-                suffix="MB"
-                :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-            </a-card>
-            <a-divider
-              style="margin-bottom: 10px"/>
-            <div>
-              <span>
-                Total TaskManager Mem
-                <strong>{{ metrics.tmMemory }} MB</strong>
-              </span>
+              active/>
+            <div
+              class="gutter-box"
+              v-if="!dashLoading">
+              <a-row
+                :gutter="24">
+                <a-col
+                  class="gutter-row"
+                  :span="12">
+                  <a-card
+                    :bordered="false"
+                    class="dash-statistic">
+                    <a-statistic
+                      title="Available Task Slots"
+                      :value="metrics.availableSlot"
+                      :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+                  </a-card>
+                </a-col>
+                <a-col
+                  class="gutter-row"
+                  :span="12">
+                  <a-card
+                    :bordered="false"
+                    class="dash-statistic stat-right">
+                    <a-statistic
+                      title="Running Jobs"
+                      :value="metrics['runningJob']"
+                      :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+                  </a-card>
+                </a-col>
+              </a-row>
+              <a-divider
+                style="margin-bottom: 10px"/>
+              <div>
+                <span>
+                  Total Task
+                  <strong>{{ metrics.task.total }}</strong>
+                </span>
+                <a-divider
+                  type="vertical"/>
+                <span>
+                  Running Task
+                  <strong>{{ metrics.task.running }}</strong>
+                </span>
+                <a-divider
+                  type="vertical"/>
+                <span>
+                  Task Slots
+                  <strong>{{ metrics.totalSlot }}</strong>
+                </span>
+                <a-divider
+                  type="vertical"/>
+                <span>
+                  Task Managers
+                  <strong>{{ metrics.totalTM }}</strong>
+                </span>
+              </div>
             </div>
-          </div>
-        </a-col>
-      </template>
-      <template
-        v-else>
-        <a-col
-          class="gutter-row"
-          :span="12">
-          <a-skeleton
-            v-if="dashLoading"
-            class="gutter-box"
-            :loading="dashLoading"
-            active/>
-          <div
-            class="gutter-box"
-            v-if="!dashLoading">
-            <a-row
-              :gutter="24">
-              <a-col
-                class="gutter-row"
-                :span="12">
-                <a-card
-                  :bordered="false"
-                  class="dash-statistic">
-                  <a-statistic
-                    title="Available Task Slots"
-                    :value="metrics.availableSlot"
-                    :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-                </a-card>
-              </a-col>
-              <a-col
-                class="gutter-row"
-                :span="12">
-                <a-card
-                  :bordered="false"
-                  class="dash-statistic stat-right">
-                  <a-statistic
-                    title="Running Jobs"
-                    :value="metrics['runningJob']"
-                    :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-                </a-card>
-              </a-col>
-            </a-row>
-            <a-divider
-              style="margin-bottom: 10px"/>
-            <div>
-              <span>
-                Total Task
-                <strong>{{ metrics.task.total }}</strong>
-              </span>
+          </a-col>
+          <a-col
+            class="gutter-row"
+            :span="12">
+            <a-skeleton
+              v-if="dashLoading"
+              class="gutter-box"
+              :loading="dashLoading"
+              active/>
+            <div
+              class="gutter-box"
+              v-if="!dashLoading">
+              <a-row
+                :gutter="24">
+                <a-col
+                  class="gutter-row"
+                  :span="12">
+                  <a-card
+                    :bordered="false"
+                    class="dash-statistic">
+                    <a-statistic
+                      title="JobManager Memory"
+                      :value="metrics.jmMemory"
+                      :precision="0"
+                      suffix="MB"
+                      :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+                  </a-card>
+                </a-col>
+                <a-col
+                  class="gutter-row"
+                  :span="12">
+                  <a-card
+                    :bordered="false"
+                    class="dash-statistic stat-right">
+                    <a-statistic
+                      title="TaskManager Memory"
+                      :value="metrics.tmMemory"
+                      :precision="0"
+                      suffix="MB"
+                      :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
+                  </a-card>
+                </a-col>
+              </a-row>
               <a-divider
-                type="vertical"/>
-              <span>
-                Running Task
-                <strong>{{ metrics.task.running }}</strong>
-              </span>
-              <a-divider
-                type="vertical"/>
-              <span>
-                Task Slots
-                <strong>{{ metrics.totalSlot }}</strong>
-              </span>
-              <a-divider
-                type="vertical"/>
-              <span>
-                Task Managers
-                <strong>{{ metrics.totalTM }}</strong>
-              </span>
+                style="margin-bottom: 10px"/>
+              <div>
+                <span>
+                  Total JobManager Mem
+                  <strong>{{ metrics.jmMemory }} MB</strong>
+                </span>
+                <a-divider
+                  type="vertical"/>
+                <span>
+                  Total TaskManager Mem
+                  <strong>{{ metrics.tmMemory }} MB</strong>
+                </span>
+              </div>
             </div>
-          </div>
-        </a-col>
-        <a-col
-          class="gutter-row"
-          :span="12">
-          <a-skeleton
-            v-if="dashLoading"
-            class="gutter-box"
-            :loading="dashLoading"
-            active/>
-          <div
-            class="gutter-box"
-            v-if="!dashLoading">
-            <a-row
-              :gutter="24">
-              <a-col
-                class="gutter-row"
-                :span="12">
-                <a-card
-                  :bordered="false"
-                  class="dash-statistic">
-                  <a-statistic
-                    title="JobManager Memory"
-                    :value="metrics.jmMemory"
-                    :precision="0"
-                    suffix="MB"
-                    :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-                </a-card>
-              </a-col>
-              <a-col
-                class="gutter-row"
-                :span="12">
-                <a-card
-                  :bordered="false"
-                  class="dash-statistic stat-right">
-                  <a-statistic
-                    title="TaskManager Memory"
-                    :value="metrics.tmMemory"
-                    :precision="0"
-                    suffix="MB"
-                    :value-style="{color: '#3f8600', fontSize: '45px', fontWeight: 500, textShadow: '1px 1px 0 rgba(0,0,0,0.2)'}"/>
-                </a-card>
-              </a-col>
-            </a-row>
-            <a-divider
-              style="margin-bottom: 10px"/>
-            <div>
-              <span>
-                Total JobManager Mem
-                <strong>{{ metrics.jmMemory }} MB</strong>
-              </span>
-              <a-divider
-                type="vertical"/>
-              <span>
-                Total TaskManager Mem
-                <strong>{{ metrics.tmMemory }} MB</strong>
-              </span>
-            </div>
-          </div>
-        </a-col>
-      </template>
-    </a-row>
+          </a-col>
+        </template>
+      </a-row>
+    </div>
+    
     <a-card
       :bordered="false"
       style="margin-top: 20px">
