@@ -63,11 +63,6 @@ function getThemeToggleColors(color, mode) {
   if(mode=='night'){
     contentColors[0]='#111217'
     contentColors[1]='#181b1f'
-    document.body.className = 'night'
-    document.body.style.background='#000'
-  }else{
-    document.body.style.background='#fff'
-    document.body.className = ''
   }
   
   console.log({primary, mainColors, subColors, menuColors, contentColors, rgbColors, functionalColors})

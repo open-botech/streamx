@@ -227,6 +227,43 @@
       :bordered="false"
       style="margin-top: 20px">
       <!-- 表格区域 -->
+      <div>
+        <a-form layout="inline" :form="searchForm" style="position:relative">
+          <a-form-item label="应用名称">
+            <a-input
+              v-decorator="[
+                'jobName',
+              ]">
+            </a-input>
+          </a-form-item>
+          <a-form-item label="业务名">
+            <a-input
+              v-decorator="[
+                'Name',
+              ]">
+            </a-input>
+          </a-form-item>
+          <!-- <a-form-item>
+            <a-input
+              v-decorator="[
+                'password',
+
+              ]">
+            </a-input>
+          </a-form-item> -->
+          <a-form-item>
+            <a-button type="primary" @click="searchList">查询</a-button>
+          </a-form-item>
+          <a-button
+            style="position:absolute;right:0;top:0"
+            v-permit="'app:create'"
+            type="primary"
+            @click="handleAdd">
+            新建任务
+          </a-button>
+        </a-form>
+      </div>
+      
       <a-table
         ref="TableInfo"
         :columns="columns"
@@ -234,7 +271,7 @@
         size="middle"
         row-key="id"
         class="app_list"
-        style="margin-top: -24px"
+        style="margin-top: 10px"
         :data-source="dataSource"
         :pagination="pagination"
         :loading="loading"
@@ -249,7 +286,7 @@
           :columns="innerColumns"
           :data-source="record.expanded"
           :pagination="false"/>
-        <div
+        <!-- <div
           slot="filterDropdown"
           slot-scope="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
           style="padding: 8px">
@@ -275,7 +312,7 @@
             @click="() => handleReset(clearFilters)">
             Reset
           </a-button>
-        </div>
+        </div> -->
 
         <a-icon
           slot="filterIcon"
@@ -409,20 +446,13 @@
 
         <template
           slot="customOperation">
-          Operation
-          <a-button
-            v-permit="'app:create'"
-            type="primary"
-            shape="circle"
-            icon="plus"
-            style="margin-left: 20px; width: 25px;height: 25px;min-width: 25px"
-            @click="handleAdd"/>
+          操作
         </template>
 
         <template
           slot="operation"
           slot-scope="text, record">
-          <svg-icon
+          <!-- <svg-icon
             name="mapping"
             border
             v-if="record.state !== 7
@@ -432,17 +462,17 @@
               && record['optionState'] === 0
               && (record['executionMode'] === 2 || record['executionMode'] === 3 || record['executionMode'] === 4)"
             v-permit="'app:mapping'"
-            @click.native="handleMapping(record)"/>
-          <svg-icon
+            @click.native="handleMapping(record)"/> -->
+          <!-- <svg-icon
             name="deploy"
             border
             v-show="(record.deploy === 2 || record.deploy === 3) && record.state !== 1 && (optionApps.deploy.get(record.id) === undefined || record['optionState'] === 0)"
             v-permit="'app:deploy'"
             class="pointer"
-            @click.native="handleDeploy(record)"/>
+            @click.native="handleDeploy(record)"/> -->
 
           <!--已经发布完的项目,不允许再次编辑-->
-          <svg-icon
+          <!-- <svg-icon
             name="edit"
             border
             v-if="record.deploy !== 6"
@@ -495,14 +525,53 @@
             name="shareAlt"
             border
             title="拓扑图"
-            @click.native="handleTp(record)"/>
+            @click.native="handleTp(record)"/> -->
+
+          <a-button 
+            type="link" 
+            size="small" 
+            style="border:none;background: transparent;" 
+            v-if="record.deploy !== 6"
+            v-permit="'app:update'"
+            @click.native="handleEdit(record)">
+            编辑
+          </a-button>
+          <a-button 
+            type="link" 
+            size="small" 
+            style="border:none;background: transparent;" 
+            v-show="handleIsStart(record)"
+            v-permit="'app:start'"
+            @click.native="handleStart(record)">
+            运行
+          </a-button>
+          <a-button 
+            type="link" 
+            size="small" 
+            style="border:none;background: transparent;" 
+            v-permit="'app:cancel'"
+            v-show="record.state === 7 && record['optionState'] === 0"
+            @click.native="handleCancel(record)">
+            停止
+          </a-button>
+          <a-button 
+            type="link" 
+            size="small" 
+            style="border:none;background: transparent;" 
+            v-permit="'app:detail'"
+            @click.native="handleDetail(record)">
+            详情
+          </a-button>
+          <a-button type="link" size="small" style="border:none;background: transparent;" @click.native="handleTp(record)">拓扑图</a-button>
           <template v-if="handleCanDelete(record)">
+            
             <a-popconfirm
               title="Are you sure delete this job ?"
               cancel-text="No"
               ok-text="Yes"
               @confirm="handleDelete(record)">
-              <svg-icon name="remove" border/>
+              <!-- <svg-icon name="remove" border/> -->
+              <a-button type="link" size="small" style="border:none;background: transparent;">删除</a-button>
             </a-popconfirm>
           </template>
 
@@ -910,6 +979,7 @@
   components: {Ellipsis, State, SvgIcon},
   data() {
     return {
+      searchForm:this.$form.createForm(this, { name: 'search_form' }),
       modeVisible:false,
       devMode:'sql',
       loading: false,
@@ -1000,7 +1070,7 @@
       sortedInfo = sortedInfo || {}
       filteredInfo = filteredInfo || {}
       return [{
-        title: 'Application Name',
+        title: '应用名称',
         dataIndex: 'jobName',
         width: 240,
         scopedSlots: {
@@ -1021,34 +1091,36 @@
           }
         },
       },{
-        title: 'Name', 
+        title: '业务名', 
         dataIndex: 'Name',
         key: 'Name',
         width: 180
         },
        {
-        title: 'Flink Version',
+        title: '版本',
         dataIndex: 'flinkVersion',
         width: 120
       }, {
-        title: 'Start Time',
+        title: '开始时间',
         dataIndex: 'startTime',
         sorter: true,
         sortOrder: sortedInfo.columnKey === 'startTime' && sortedInfo.order,
         width: 180
       }, {
-        title: 'Duration',
+        title: '持续时间',
         dataIndex: 'duration',
         sorter: true,
         sortOrder: sortedInfo.columnKey === 'duration' && sortedInfo.order,
         scopedSlots: {customRender: 'duration'},
         width: 150
-      }, {
-        title: 'Task',
-        dataIndex: 'task',
-        width: 120
-      }, {
-        title: 'Run Status',
+      }
+      // , {
+      //   title: 'Task',
+      //   dataIndex: 'task',
+      //   width: 120
+      // }
+      , {
+        title: '运行状态',
         dataIndex: 'state',
         width: 120,
         scopedSlots: {customRender: 'state'},
@@ -1069,7 +1141,7 @@
           {text: 'FINISHED', value: 21},
         ]
       }, {
-        title: 'Deploy Status',
+        title: '部署状态',
         dataIndex: 'deploy',
         width: 130,
         scopedSlots: {customRender: 'deployState'}
@@ -1107,6 +1179,16 @@
 
   methods: {
     ...mapActions(['SetAppId']),
+    //查询
+    searchList(){
+      const data=this.searchForm.getFieldsValue()
+      this.queryParams['jobName']=data.jobName
+      this.queryParams['Name']=data.Name
+      if(this.paginationInfo){
+        this.paginationInfo.current=1
+      }
+      this.handleFetch(true)
+    },
     modeSelectSure(){
       if(this.devMode=='sql'){
         this.$router.push({'path': '/devflink/app/add'})

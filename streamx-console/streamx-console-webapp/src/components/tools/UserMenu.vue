@@ -222,6 +222,13 @@ export default {
         const closeMessage = this.$message.loading(`您选择了主题模式 ${_theme}, 正在切换...`)
         themeUtil.changeThemeColor(null, _theme).then(closeMessage)
       }
+      if(_theme=='dark'){
+        document.body.className = 'night'
+        document.body.style.background='#000'
+      }else{
+        document.body.style.background='#fff'
+       document.body.className = ''
+      }
     },
 
     handleConfirmBlur(e) {

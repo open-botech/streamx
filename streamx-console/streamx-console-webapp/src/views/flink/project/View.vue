@@ -4,51 +4,62 @@
       style="margin-top: 24px;"
       :bordered="false">
       <div slot="title">
-        <a-input-search
-          @search="handleSearch"
-          style="margin-left: 16px; width: 272px;" />
-
-        <a-radio-group
-          style="margin-left:20px"
-          button-style="solid"
-          default-value="">
-          <a-radio-button
-            @click="handleQuery()"
-            value="">
-            All
-          </a-radio-button>
-          <a-radio-button
-            @click="handleQuery(-1)"
-            value="-1">
-            Not Build
-          </a-radio-button>
-          <a-radio-button
-            @click="handleQuery(0)"
-            value="0">
-            Building
-          </a-radio-button>
-          <a-radio-button
-            @click="handleQuery(1)"
-            value="1">
-            Build Success
-          </a-radio-button>
-          <a-radio-button
-            @click="handleQuery(2)"
-            value="2">
-            Build Failed
-          </a-radio-button>
-        </a-radio-group>
+        <a-form layout="inline">
+          <a-form-item label="项目名称" >
+            <a-input
+              v-model="serchQuery"
+              style="margin-right: 16px; width: 272px;" />
+          </a-form-item>
+          <a-form-item >
+            <a-button type="primary" @click="handleSearch">查询</a-button>
+          </a-form-item>
+          <a-form-item >
+            <a-radio-group
+              style="margin-left:20px"
+              button-style="solid"
+              default-value="">
+              <a-radio-button
+                @click="handleQuery()"
+                value="">
+                All
+              </a-radio-button>
+              <a-radio-button
+                @click="handleQuery(-1)"
+                value="-1">
+                Not Build
+              </a-radio-button>
+              <a-radio-button
+                @click="handleQuery(0)"
+                value="0">
+                Building
+              </a-radio-button>
+              <a-radio-button
+                @click="handleQuery(1)"
+                value="1">
+                Build Success
+              </a-radio-button>
+              <a-radio-button
+                @click="handleQuery(2)"
+                value="2">
+                Build Failed
+              </a-radio-button>
+            </a-radio-group>
+          </a-form-item>
+        </a-form>
+        
+        
+        
       </div>
 
       <div
+        slot="extra"
         class="operate"
         v-permit="'project:create'">
         <a-button
-          type="dashed"
+          type="primary"
           style="width: 100%"
-          icon="plus"
           @click="handleAdd">
-          Add New
+          新建项目
         </a-button>
       </div>
 
@@ -200,6 +211,7 @@ export default {
   components: { Ellipsis, SvgIcon },
   data () {
     return {
+      serchQuery:'',
       loading: false,
       advanced: false,
       dataSource: [],
@@ -238,10 +250,10 @@ export default {
   },
 
   methods: {
-    handleSearch (value) {
+    handleSearch () {
       this.paginationInfo = null
+      this.queryParams.name=this.serchQuery
       this.handleFetch({
-        name: value,
         ...this.queryParams
       }, true)
     },
@@ -425,9 +437,10 @@ export default {
 }
 
 .avatar {
-  border-radius: 50%;
-  background-color: #ebebeb;
-  border: 6px solid #ebebeb;
+  opacity: .6;
+  // border-radius: 50%;
+  // background-color: #ebebeb;
+  // border: 6px solid #ebebeb;
 }
 
 .status-processing-building {
