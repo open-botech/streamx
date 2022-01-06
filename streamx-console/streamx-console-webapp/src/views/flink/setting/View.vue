@@ -47,8 +47,8 @@
                 </div>
               </div>
               <div slot="actions" v-if="item.type === 1">
-                <a v-if="!item.submitting" @click="handleEdit(item)">Edit</a>
-                <a v-else @click="handleSubmit(item)">Submit</a>
+                <a v-if="!item.submitting" @click="handleEdit(item)">编辑</a>
+                <a v-else @click="handleSubmit(item)">提交</a>
               </div>
             </a-list-item>
           </a-list>
@@ -97,9 +97,9 @@
               </div>
 
               <div slot="actions">
-                <a @click="handleEditFlink(item)">Edit</a>
+                <a @click="handleEditFlink(item)">编辑</a>
                 <a-divider type="vertical" />
-                <a @click="handleFlinkConf(item)">Flink Conf</a>
+                <a @click="handleFlinkConf(item)">配置</a>
               </div>
 
             </a-list-item>

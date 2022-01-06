@@ -1151,7 +1151,7 @@
         fixed: 'right',
         scopedSlots: {customRender: 'operation'},
         slots: {title: 'customOperation'},
-        width: 200
+        width: 250
       }]
     }
   },

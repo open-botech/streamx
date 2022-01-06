@@ -159,18 +159,31 @@
               cancel-text="No"
               ok-text="Yes"
               @confirm="handleBuild(item)">
-              <svg-icon
-                name="thunderbolt"/>
+              <a-button 
+                type="link" 
+                size="small" 
+                style="border:none;background: transparent;">
+                编译
+              </a-button>
+              <!-- <svg-icon
+                name="thunderbolt"/> -->
             </a-popconfirm>
             <a-popconfirm
               title="Are you sure delete this project ?"
               cancel-text="No"
               ok-text="Yes"
               @confirm="handleDelete(item)">
-              <svg-icon
+              <a-button 
+                type="link" 
+                size="small" 
+                v-permit="'project:delete'"
+                style="border:none;background: transparent;">
+                删除
+              </a-button>
+              <!-- <svg-icon
                 name="remove"
                 v-permit="'project:delete'"
-                style="margin-left:10px;"/>
+                style="margin-left:10px;"/> -->
             </a-popconfirm>
           </div>
 
