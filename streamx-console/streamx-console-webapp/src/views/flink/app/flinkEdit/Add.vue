@@ -296,6 +296,15 @@
               allowClear
               v-decorator="['jobName',{ rules: [{ validator: handleCheckJobName,required: true}]}]"/>
           </a-form-item>
+          <a-form-item
+            label="Name"
+            :label-col="{lg: {span: 5}, sm: {span: 7}}"
+            :wrapper-col="{lg: {span: 16}, sm: {span: 17} }">
+            <a-input
+              type="text"
+              placeholder="Please enter Name"
+              v-decorator="['name']" />
+          </a-form-item>
 
           <a-form-item
             label="Resolve Order"
@@ -1536,6 +1545,7 @@ export default {
         module: values.module,
         appType: this.appType,
         jobName: values.jobName,
+        name:values.name,
         args: values.args,
         options: JSON.stringify(options),
         cpMaxFailureInterval: values.cpMaxFailureInterval || null,
@@ -1609,6 +1619,7 @@ export default {
         appType: 1,
         config: config,
         jobName: values.jobName,
+        name:values.name,
         args: values.args || null,
         dependency: dependency.pom === undefined && dependency.jar === undefined ? null : JSON.stringify(dependency),
         options: JSON.stringify(options),

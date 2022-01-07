@@ -10,7 +10,7 @@
     <div class="form-box">
       <a-form
         @submit="handleSubmit"
-        :form="form"
+        :form="formStep"
         v-if="app!=null">
         <a-form-item
           :wrapper-col="{ span: 24 }"
@@ -206,6 +206,15 @@
                 type="text"
                 placeholder="Please enter Application Name"
                 v-decorator="['jobName',{ rules: [{ validator: handleCheckJobName,trigger:'submit' } ]}]" />
+            </a-form-item>
+            <a-form-item
+              label="Name"
+              :label-col="{lg: {span: 5}, sm: {span: 7}}"
+              :wrapper-col="{lg: {span: 16}, sm: {span: 17} }">
+              <a-input
+                type="text"
+                placeholder="Please enter Name"
+                v-decorator="['name']" />
             </a-form-item>
 
             <a-form-item
@@ -662,6 +671,7 @@ export default {
       tmMemoryItems: [],
       totalItems: [],
       form: null,
+      formStep:null,
       options: configOptions,
       optionsKeyMapping: {},
       optionsValueMapping: {},
@@ -876,6 +886,7 @@ export default {
             const params = {
               id: this.app.id,
               jobName: values.jobName,
+              name:values.name,
               resolveOrder: values.resolveOrder,
               versionId: values.versionId,
               executionMode: values.executionMode,
@@ -958,6 +969,7 @@ export default {
       this.$nextTick(() => {
         this.form.setFieldsValue({
           'jobName': this.app.jobName,
+          'name': this.app.name,
           'mainClass': this.app.mainClass,
           'args': this.app.args,
           'jar': this.app.jar,

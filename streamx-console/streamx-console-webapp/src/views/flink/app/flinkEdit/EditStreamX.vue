@@ -492,6 +492,15 @@
               placeholder="Please enter Application Name"
               v-decorator="['jobName',{ rules: [{ validator: handleCheckJobName,trigger:'submit',required: true } ]}]" />
           </a-form-item>
+          <a-form-item
+            label="Name"
+            :label-col="{lg: {span: 5}, sm: {span: 7}}"
+            :wrapper-col="{lg: {span: 16}, sm: {span: 17} }">
+            <a-input
+              type="text"
+              placeholder="Please enter Name"
+              v-decorator="['name']" />
+          </a-form-item>
 
           <a-form-item
             label="Resolve Order"
@@ -1711,6 +1720,7 @@ export default {
       const params = {
         id: this.app.id,
         jobName: values.jobName,
+        name:values.name,
         format: format,
         configId: configId,
         versionId: values.versionId,
@@ -1767,6 +1777,7 @@ export default {
         config: config,
         versionId: values.versionId,
         jobName: values.jobName,
+        name:values.name,
         args: values.args || null,
         dependency: dependency.pom === undefined && dependency.jar === undefined ? null : JSON.stringify(dependency),
         options: JSON.stringify(options),
@@ -1943,6 +1954,7 @@ export default {
         this.form.setFieldsValue({
           'jobName': this.app.jobName,
           'args': this.app.args,
+          'name':this.app.name,
           'description': this.app.description,
           'dynamicOptions': this.app.dynamicOptions,
           'resolveOrder': this.app.resolveOrder,

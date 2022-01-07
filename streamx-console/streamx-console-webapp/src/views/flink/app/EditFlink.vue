@@ -162,6 +162,15 @@
           placeholder="Please enter Application Name"
           v-decorator="['jobName',{ rules: [{ validator: handleCheckJobName,trigger:'submit' } ]}]" />
       </a-form-item>
+      <a-form-item
+        label="Name"
+        :label-col="{lg: {span: 5}, sm: {span: 7}}"
+        :wrapper-col="{lg: {span: 16}, sm: {span: 17} }">
+        <a-input
+          type="text"
+          placeholder="Please enter Name"
+          v-decorator="['name']" />
+      </a-form-item>
 
       <a-form-item
         label="Resolve Order"
@@ -818,6 +827,7 @@ export default {
             const params = {
               id: this.app.id,
               jobName: values.jobName,
+              name: values.name,
               resolveOrder: values.resolveOrder,
               versionId: values.versionId,
               executionMode: values.executionMode,
@@ -900,6 +910,7 @@ export default {
       this.$nextTick(() => {
         this.form.setFieldsValue({
           'jobName': this.app.jobName,
+          'name': this.app.name,
           'mainClass': this.app.mainClass,
           'args': this.app.args,
           'jar': this.app.jar,
