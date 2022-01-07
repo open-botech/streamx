@@ -39,7 +39,7 @@ const constRouter = [
           'component': () => import('@/views/flink/app/flinkEdit/Add') ,
         },{
           'path': '/devflink/app/costumedit',
-          'component': () => import('@/views/flink/app/costumEdit/CostumEdit_bak') ,
+          'component': () => import('@/views/flink/app/costumEdit/CostumEdit') ,
         },{
           'path': '/devflink/app/costumadd',
           'component': () => import('@/views/flink/app/costumAdd/CostumAdd') ,

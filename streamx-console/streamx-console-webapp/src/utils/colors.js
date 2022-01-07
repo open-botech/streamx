@@ -59,13 +59,10 @@ function getThemeToggleColors(color, mode) {
   // rgb 格式的主题色
   const rgbColors = [toNum3(primary).join(',')]
   const functionalColors = getFunctionalColors(mode)
-  console.log(mode)
   if(mode=='night'){
     contentColors[0]='#111217'
     contentColors[1]='#181b1f'
-  }
-  
-  console.log({primary, mainColors, subColors, menuColors, contentColors, rgbColors, functionalColors})
+  } 
   return {primary, mainColors, subColors, menuColors, contentColors, rgbColors, functionalColors}
 }
 
