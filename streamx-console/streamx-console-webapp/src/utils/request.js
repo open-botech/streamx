@@ -46,6 +46,10 @@ http.interceptors.request.use(config => {
   const token = storage.get(TOKEN)
   if (token) {
     config.headers['Authorization'] = token
+  }else {
+    if(config.url != '/streamxApi/passport/signin') {
+      return Promise.reject()
+    }
   }
   config.transformRequest = [function (data) {
     // 在请求之前对data传参进行格式转换
