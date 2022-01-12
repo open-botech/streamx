@@ -1009,17 +1009,20 @@
       <Different ref="different"/>
 
     </a-card>
-    <a-drawer
+    <!-- <a-drawer
       title="血缘"
-      placement="bottom"
+      placement="right"
       :closable="true"
       height="600px"
-      :visible="kinShipVisible"
-      @close="onClose">
+      width="600px"
+      :visible="true">
       <div class="topologyDiv">
-        <Topology :data="kinshipData"></Topology>
+        <lineage-table :tables="tables" :relations="relations" @onEachFrame="() => { }"></lineage-table>
       </div>
-    </a-drawer>
+    </a-drawer> -->
+    <a-modal v-model="kinShipVisible" title="血缘" :footer="null" width="900px" height="700px">
+      <lineage-table :tables="tables" :relations="relations" @onEachFrame="() => { }"></lineage-table>
+    </a-modal>
   </div>
 </template>
 
@@ -1029,13 +1032,14 @@ import { listConf } from '@api/project'
 import { get, update, exists, name, readConf, upload } from '@api/application'
 import { history as confhistory, get as getVer, template } from '@api/config'
 import { get as getSQL, history as sqlhistory,kinship } from '@api/flinksql'
+import kinshipCom from '@/components/Kinship/index.jsx'
 import { mapActions, mapGetters } from 'vuex'
 import Mergely from '../Mergely'
 import Different from '../Different'
 import configOptions from '../Option'
 import SvgIcon from '@/components/SvgIcon'
 import Topology from '@/components/newTopology'
-
+import {LineageTable} from 'react-lineage-dag'
 const Base64 = require('js-base64').Base64
 import {
   initEditor,
@@ -1055,9 +1059,11 @@ import node from '@/components/newTopology/components/node'
 import edge from '@/components/newTopology/components/edge'
 export default {
   name: 'EditStreamX',
-  components: { Mergely, Different, Ellipsis, SvgIcon, Topology},
+  components: { LineageTable,kinshipCom,Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
+       tables: [],
+      relations: [],
       //血缘数据
       kinshipData:{
         nodes : [] ,
@@ -1257,13 +1263,28 @@ export default {
         if(success){
           kinship({
             sql:this.controller.flinkSql.value,
-            versionId:this.versionId
+            versionId:this.versionId,
+            jars:this.uploadJars[0]?this.uploadJars[0]:''
           }).then(res=>{
             if(res){
-              const data = this.formatKinshipData(res)
-              console.log(data)
-              this.kinshipData = data
+              // const data = this.formatKinshipData(res)
+              console.log(res)
+              res.relations.forEach(item=>{
+                item.srcTableId=item.srcTable
+                item.tgtTableId=item.tgtTable
+              })
+              res.tables.forEach(item=>{
+                item.id=item.name
+                item.columns.forEach(col=>{
+                  col.title=col.name
+                })
+              })
+              
               this.kinShipVisible = true
+              setTimeout(()=>{
+                this.tables=res.tables
+              this.relations=res.relations
+              },500)
             }else{
               this.$message.error('无法解析血缘')
             }
@@ -2074,10 +2095,10 @@ export default {
   background:#000;
   height: 100%;
 }
-.topologyDiv{
-    height: 100%;
-    position: relative;
-  }
+// .topologyDiv{
+//     height: 100%;
+//     position: relative;
+//   }
 .app_controller{ 
   height: 100%;
   position: relative;

@@ -28,10 +28,11 @@ import store from './store/'
 
 import bootstrap from './core/bootstrap'
 import $ from 'jquery'
+import { VuePlugin } from 'vuera'
 import './core/use'
 import './core/prototype'
 import './utils/filter' // global filter
-
+Vue.use(VuePlugin)
 Vue.config.productionTip = false
 
 window.app = new Vue({
