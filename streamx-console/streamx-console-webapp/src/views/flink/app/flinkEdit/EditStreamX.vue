@@ -1020,7 +1020,13 @@
         <lineage-table :tables="tables" :relations="relations" @onEachFrame="() => { }"></lineage-table>
       </div>
     </a-drawer> -->
-    <a-modal v-model="kinShipVisible" title="血缘" :footer="null" width="900px" height="700px">
+    <a-modal
+      v-model="kinShipVisible"
+      @cancel="kinShipCancel"
+      title="血缘"
+      :footer="null"
+      width="900px"
+      height="700px">
       <lineage-table :tables="tables" :relations="relations" @onEachFrame="() => { }"></lineage-table>
     </a-modal>
   </div>
@@ -1256,6 +1262,11 @@ export default {
     onStepsChange(current){
       this.current=current
     },
+    //关闭血缘
+    kinShipCancel(){
+      this.tables=[]
+      this.relations=[]
+    },
     //生成血缘
     generateKinship(){
       this.kinshipLoading=true
@@ -1282,7 +1293,7 @@ export default {
               
               this.kinShipVisible = true
               setTimeout(()=>{
-                this.tables=res.tables
+              this.tables=res.tables
               this.relations=res.relations
               },500)
             }else{

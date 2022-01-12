@@ -29,6 +29,7 @@ import store from './store/'
 import bootstrap from './core/bootstrap'
 import $ from 'jquery'
 import { VuePlugin } from 'vuera'
+import '@/assets/less/patch.less'
 import './core/use'
 import './core/prototype'
 import './utils/filter' // global filter
