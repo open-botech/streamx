@@ -46,9 +46,6 @@ const constRouter = [
         },{
           'path': '/devflink/app/fly',
           'component': () => import('@/components/newTopology/index.vue') ,
-        },{
-          'path': '/devflink/app/demo',
-          'component': () => import('@/views/flink/app/flinkEdit/demo.vue') ,
         }]
       }]
   },

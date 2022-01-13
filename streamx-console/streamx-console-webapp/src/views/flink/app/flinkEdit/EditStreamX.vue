@@ -1038,7 +1038,6 @@ import { listConf } from '@api/project'
 import { get, update, exists, name, readConf, upload } from '@api/application'
 import { history as confhistory, get as getVer, template } from '@api/config'
 import { get as getSQL, history as sqlhistory,kinship } from '@api/flinksql'
-import kinshipCom from '@/components/Kinship/index.jsx'
 import { mapActions, mapGetters } from 'vuex'
 import Mergely from '../Mergely'
 import Different from '../Different'
@@ -1063,9 +1062,10 @@ import { toPomString } from '../Pom'
 import {list as listFlinkEnv} from '@/api/flinkenv'
 import node from '@/components/newTopology/components/node'
 import edge from '@/components/newTopology/components/edge'
+import getOps from '@/components/Kinship/operator.jsx'
 export default {
   name: 'EditStreamX',
-  components: { LineageTable,kinshipCom,Mergely, Different, Ellipsis, SvgIcon, Topology},
+  components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
        tables: [],
@@ -1255,7 +1255,6 @@ export default {
       }
     }
   },
-
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
@@ -1266,6 +1265,16 @@ export default {
     kinShipCancel(){
       this.tables=[]
       this.relations=[]
+    },
+    onAction (action, tableId) {
+      this.tables.forEach(table => {
+        if(table.id !== tableId) {
+          return
+        }
+
+        table.isFold = !table.isFold
+      })
+      this.tables = [...this.tables]
     },
     //生成血缘
     generateKinship(){
@@ -1285,9 +1294,17 @@ export default {
                 item.tgtTableId=item.tgtTable
               })
               res.tables.forEach(item=>{
+                item.isFold=true
                 item.id=item.name
                 item.columns.forEach(col=>{
                   col.title=col.name
+                })
+              })
+              res.tables.forEach(table => {
+                table.operators = getOps({
+                  isFold: !!table.isFold,
+                  onAction:this.onAction,
+                  tableId: table.id
                 })
               })
               
