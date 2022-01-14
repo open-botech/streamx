@@ -1027,7 +1027,11 @@
       :footer="null"
       width="900px"
       height="700px">
-      <lineage-table :tables="tables" :relations="relations" @onEachFrame="() => { }"></lineage-table>
+      <lineage-table
+        :tables="tables"
+        :relations="relations"
+        @onLoaded="lineageLoad"
+        @onEachFrame="reload"></lineage-table>
     </a-modal>
   </div>
 </template>
@@ -1068,7 +1072,9 @@ export default {
   components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
-       tables: [],
+      tables: [],
+      cvsRef:{},
+      reloadStatus:true,
       relations: [],
       //血缘数据
       kinshipData:{
@@ -1258,6 +1264,21 @@ export default {
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
+    lineageLoad(canvas){
+      this.cvsRef.current = canvas
+    },
+    reload(){
+      if (!this.cvsRef.current) {
+        return
+      }
+      if(this.reloadStatus){
+        this.cvsRef.current.relayout()
+        this.cvsRef.current.focusCenterWithAnimate()
+        this.reloadStatus=false
+      }
+      
+      
+    },
     onStepsChange(current){
       this.current=current
     },
@@ -1271,8 +1292,8 @@ export default {
         if(table.id !== tableId) {
           return
         }
-
         table.isFold = !table.isFold
+        this.reloadStatus = true
       })
       this.tables = [...this.tables]
     },

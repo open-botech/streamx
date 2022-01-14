@@ -434,6 +434,11 @@
             option="state"
             :data="record"/>
         </template>
+        <template
+          slot="stateFilter">
+          <a-icon type="filter" theme="filled" style="right:30px"/>
+        </template>
+        
 
         <template
           slot="deployState"
@@ -558,11 +563,20 @@
             type="link" 
             size="small" 
             style="border:none;background: transparent;" 
+            v-show="(record.deploy === 2 || record.deploy === 3) && record.state !== 1 && (optionApps.deploy.get(record.id) === undefined || record['optionState'] === 0)"
+            v-permit="'app:deploy'"
+            @click.native="handleDeploy(record)">
+            部署
+          </a-button>
+          <a-button 
+            type="link" 
+            size="small" 
+            style="border:none;background: transparent;" 
             v-permit="'app:detail'"
             @click.native="handleDetail(record)">
             详情
           </a-button>
-          <a-button type="link" size="small" style="border:none;background: transparent;" @click.native="handleTp(record)">拓扑图</a-button>
+          <a-button type="link" size="small" style="border:none;background: transparent;" @click.native="handleTp(record)">拓扑</a-button>
           <template v-if="handleCanDelete(record)">
             
             <a-popconfirm
@@ -1123,7 +1137,7 @@
         title: '运行状态',
         dataIndex: 'state',
         width: 120,
-        scopedSlots: {customRender: 'state'},
+        scopedSlots: {customRender: 'state',filterIcon:'stateFilter'},
         filters: [
           {text: 'ADDED', value: 0},
           {text: 'DEPLOYING', value: 1},
@@ -1151,7 +1165,7 @@
         fixed: 'right',
         scopedSlots: {customRender: 'operation'},
         slots: {title: 'customOperation'},
-        width: 250
+        width: 270
       }]
     }
   },
