@@ -47,34 +47,36 @@
           </a-button>
         </a-form-item>
         <div v-show="current==0" class="setpContent">
-          <a-form-item
-            label=""
-            class="form-required"
-            style="margin-top: 10px">
-            <p class="conf-desc">
-              <span class="sql-desc" v-if="!controller.flinkSql.success">
-                {{ controller.flinkSql.errorMsg }}
-              </span>
-              <span v-else class="sql-desc" style="color: green">
-                successful
-              </span>
-            </p>
-            <div class="sql-box" style="position:relative" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
-              <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship" :loading="kinshipLoading">生成血缘</a-button>
-            </div>
-            <a-icon
-              class="format-sql"
-              type="align-left"
-              title="Format SQL"
-              @click.native="handleFormatSql"/>
+          <a-spin :spinning="kinshipLoading" :delay="100">
+            <a-form-item
+              label=""
+              class="form-required"
+              style="margin-top: 10px">
+              <p class="conf-desc">
+                <span class="sql-desc" v-if="!controller.flinkSql.success">
+                  {{ controller.flinkSql.errorMsg }}
+                </span>
+                <span v-else class="sql-desc" style="color: green">
+                  successful
+                </span>
+              </p>
+              <div class="sql-box" style="position:relative" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
+                <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship" :loading="kinshipLoading">生成血缘</a-button>
+              </div>
+              <a-icon
+                class="format-sql"
+                type="align-left"
+                title="Format SQL"
+                @click.native="handleFormatSql"/>
 
-            <a-icon
-              class="big-screen"
-              type="fullscreen"
-              title="Full Screen"
-              two-tone-color="#4a9ff5"
-              @click="handleBigScreenOpen()" />
-          </a-form-item>
+              <a-icon
+                class="big-screen"
+                type="fullscreen"
+                title="Full Screen"
+                two-tone-color="#4a9ff5"
+                @click="handleBigScreenOpen()" />
+            </a-form-item>
+          </a-spin>
         </div>
         <div v-show="current==1" class="setpContent">
           <a-form-item
@@ -1025,13 +1027,27 @@
       @cancel="kinShipCancel"
       title="血缘"
       :footer="null"
-      width="900px"
-      height="700px">
+      width="100%"
+      height="100%"
+      class="kinShipBox"
+      :dialog-style="{ top: '0',padding:'0' }">
       <lineage-table
+        style="height:100%"
         :tables="tables"
         :relations="relations"
         @onLoaded="lineageLoad"
         @onEachFrame="reload"></lineage-table>
+    </a-modal>
+    <a-modal
+      v-model="errorVisible"
+      title="生成失败"
+      :footer="null"
+      width="100%"
+      height="100%"
+      :dialog-style="{ top: '0',padding:'0' }">
+      <div v-html="errorMessage">
+
+      </div>
     </a-modal>
   </div>
 </template>
@@ -1072,6 +1088,8 @@ export default {
   components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
+      errorMessage:'',
+      errorVisible:false,
       tables: [],
       cvsRef:{},
       reloadStatus:true,
@@ -1310,33 +1328,42 @@ export default {
             if(res){
               // const data = this.formatKinshipData(res)
               console.log(res)
-              res.relations.forEach(item=>{
-                item.srcTableId=item.srcTable
-                item.tgtTableId=item.tgtTable
-              })
-              res.tables.forEach(item=>{
-                item.isFold=true
-                item.id=item.name
-                item.columns.forEach(col=>{
-                  col.title=col.name
+              if(res.relations){
+                res.relations.forEach(item=>{
+                  item.srcTableId=item.srcTable
+                  item.tgtTableId=item.tgtTable
                 })
-              })
-              res.tables.forEach(table => {
-                table.operators = getOps({
-                  isFold: !!table.isFold,
-                  onAction:this.onAction,
-                  tableId: table.id
+                res.tables.forEach(item=>{
+                  item.isFold=true
+                  item.id=item.name
+                  item.columns.forEach(col=>{
+                    col.title=col.name
+                  })
                 })
-              })
+                res.tables.forEach(table => {
+                  table.operators = getOps({
+                    isFold: !!table.isFold,
+                    onAction:this.onAction,
+                    tableId: table.id
+                  })
+                })
+                
+                this.kinShipVisible = true
+                setTimeout(()=>{
+                  this.tables=res.tables
+                  this.relations=res.relations
+                },500)
+              }else{
+                this.errorVisible=true
+                this.errorMessage=res
+                console.log(res)
+              }
               
-              this.kinShipVisible = true
-              setTimeout(()=>{
-              this.tables=res.tables
-              this.relations=res.relations
-              },500)
             }else{
               this.$message.error('无法解析血缘')
             }
+            this.kinshipLoading=false
+          }).catch(()=>{
             this.kinshipLoading=false
           })
           // this.versionId
@@ -2131,6 +2158,18 @@ export default {
     display: flex;
     flex-direction: column;
   }
+}
+.kinShipBox{
+  .ant-modal-content{
+    height:100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .ant-modal-body{
+    flex: 1;
+
+  }
+  
 }
 
 </style>
