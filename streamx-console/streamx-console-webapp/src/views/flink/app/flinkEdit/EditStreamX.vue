@@ -1045,7 +1045,7 @@
       width="100%"
       height="100%"
       :dialog-style="{ top: '0',padding:'0' }">
-      <div v-html="errorMessage">
+      <div v-html="errorMessage" style="white-space: pre-line;">
 
       </div>
     </a-modal>
