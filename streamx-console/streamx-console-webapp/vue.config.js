@@ -27,7 +27,7 @@ const ThemeColorReplacer = require('webpack-theme-color-replacer')
 const {getThemeColors, modifyVars} = require('./src/utils/themeUtil')
 const {resolveCss} = require('./src/utils/theme-color-replacer-extend')
 const isProd = process.env.NODE_ENV === 'production'
-
+const packageName = require('./package.json').name
 
 function resolve (dir) {
   return path.join(__dirname, dir)
@@ -35,8 +35,10 @@ function resolve (dir) {
 
 // vue.config.js
 module.exports = {
-
   devServer: {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
     // development server port 8000
     port: 10000,
     proxy: {
@@ -56,7 +58,7 @@ module.exports = {
       }
     }
   },
-
+  
   pluginOptions: {
     'style-resources-loader': {
       preProcessor: 'less',
@@ -65,7 +67,11 @@ module.exports = {
   },
 
   configureWebpack: {
-
+    output: {
+      library: `${packageName}-[name]`,
+      libraryTarget: 'umd',
+      jsonpFunction: `webpackJsonp_${packageName}`,
+    },
     resolve : {
       alias: {
         'jQuery':	path.join(__dirname, 'node_modules', 'jquery')
