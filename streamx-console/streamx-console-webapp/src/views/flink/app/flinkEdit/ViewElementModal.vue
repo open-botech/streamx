@@ -1,32 +1,32 @@
 <template>
   <a-modal
-      v-model="viewElementVisible"
-      title="查看组件"
-      width="70%"
-      ok-text="确认"
-      cancel-text="取消"
-      @ok="hideElementModal">
-      <div>
-        <a-select :default-value="activeElementType" style="width: 200px;">
-          <a-select-option v-for="item of elementType" :key="item.value" :value="item.value">
-            {{ item.type }}
-          </a-select-option>
-        </a-select>
-        <a-select :default-value="defaultDataSource" style="width: 200px;" @change="handleSourceChange">
-          <a-select-option v-for="item of DATA_SOURCE" :key="item.key" :value="item.code">
-            {{ item.name }}
-          </a-select-option>
-        </a-select>
-      </div>
+    v-model="viewElementVisible"
+    title="查看组件"
+    width="70%"
+    ok-text="确认"
+    cancel-text="取消"
+    @ok="hideElementModal">
+    <div>
+      <a-select :default-value="defaultCodeExample" style="width: 200px;" @change="handleSourceChange">
+        <a-select-option v-for="item of CODE_EXAMPLE" :key="item.key" :value="item.code">
+          {{ item.name }}
+        </a-select-option>
+      </a-select>
+      <a-select :default-value="defaultDataSource" style="width: 200px;" @change="handleSourceChange">
+        <a-select-option v-for="item of DATA_SOURCE" :key="item.key" :value="item.code">
+          {{ item.name }}
+        </a-select-option>
+      </a-select>
+    </div>
 
-      <div class="sql-box" id="flink-sql-small">
-      </div>
-      <p class="element-code"></p>
-    </a-modal>
+    <div class="sql-box" id="flink-sql-small">
+    </div>
+    <p class="element-code"></p>
+  </a-modal>
 </template>
 
 <script>
-import { DATA_SOURCE } from './constant'
+import { DATA_SOURCE, CODE_EXAMPLE } from './constant'
 import {
   initEditorSingle,
 } from '../AddEdit'
@@ -36,6 +36,8 @@ export default {
       smallController: null,
       defaultDataSource: DATA_SOURCE[0].name,
       DATA_SOURCE: DATA_SOURCE,
+      defaultCodeExample: CODE_EXAMPLE[0].name,
+      CODE_EXAMPLE: CODE_EXAMPLE,
       viewElementVisible: false,
       activeElementType: 'restful',
       elementType: [

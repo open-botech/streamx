@@ -198,3 +198,77 @@ INSERT INTO table2 SELECT id,name FROM table1;`
   }
 ]
 
+export const CODE_EXAMPLE = [
+  {
+    key: 'Restful',
+    name: 'Restful',
+    code: `CREATE FUNCTION restful AS 'com.botech.flinketl.udf.RestfulUdf';
+restful(reponse_str,'')`
+  },
+  {
+    key: '加\解密',
+    name: '加\解密',
+    code: `FROM_BASE64(string)
+TO_BASE64(string)`
+  },
+  {
+    key: '分支',
+    name: '分支',
+    code: `CASE WHEN condition1 THEN result1 (WHEN condition2 THEN result2)* (ELSE result_z) END`
+  },
+  {
+    key: '脱敏',
+    name: '脱敏',
+    code: `CREATE FUNCTION deSense AS 'com.botech.flinketl.udf.DeSenseUdf';
+deSense(desense_str,start,length,'*')`
+  },
+  {
+    key: '字段合并拆分',
+    name: '字段合并拆分',
+    code: `SPLIT_INDEX(string1, string2, integer1)
+CONCAT(string1, string2,...)`
+  },
+  {
+    key: '字段内容清洗',
+    name: '字段内容清洗',
+    code: `LTRIM(string)  
+RTRIM(string)`
+  },
+  {
+    key: '空值转换',
+    name: '空值转换',
+    code: `IFNULL(input, null_replacement)`
+  },
+  {
+    key: '中文数字转换',
+    name: '中文数字转换',
+    code: `CREATE FUNCTION chineseToNumber AS 'com.botech.flinketl.udf.ChineseNumberUdf';
+chineseToNumber(chinse)`
+  },
+  {
+    key: '日期时间转换',
+    name: '日期时间转换',
+    code: `DATE_FORMAT(timestamp, string)`
+  },
+  {
+    key: '数据类型转换',
+    name: '数据类型转换',
+    code: `CAST(value AS type)`
+  },
+  {
+    key: '过滤',
+    name: '过滤',
+    code: `SELECT * FROM TABLE WHERE filter`
+  },
+  {
+    key: '抽样',
+    name: '抽样',
+    code: `RAND()`
+  },
+  {
+    key: '去重',
+    name: '去重',
+    code: `SELECT DISTINCT col1,col2... FROM TABLE WHERE filter`
+  }
+]
+
