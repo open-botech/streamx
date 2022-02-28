@@ -21,7 +21,7 @@
           @click="handleReset">
           Reset
         </a-button> -->
-        
+
           <a-button
             v-show="current!=0"
             @click="current--"
@@ -76,7 +76,8 @@
               </span>
             </p>
             <div class="sql-box" style="position:relative;" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
-              <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship" :loading="kinshipLoading">生成血缘</a-button>
+              <a-button type="primary" style="position:absolute;bottom:30px;right:120px;z-index:99" @click="generateKinship" :loading="kinshipLoading">语法解析</a-button>
+              <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="viewElement">查看组件</a-button>
             </div>
             <a-icon
               class="format-sql"
@@ -265,7 +266,7 @@
             </a-form-item>
           </template>
 
-      
+
 
           <a-form-item
             label="Application conf"
@@ -801,7 +802,7 @@
         @close="handleEditConfClose"
         @ok="handleEditConfOk"
         :visiable="controller.visiable.conf"/>
-    </a-card>  
+    </a-card>
     <a-drawer
       title="血缘"
       placement="bottom"
@@ -813,6 +814,7 @@
         <Topology :data="kinshipData"></Topology>
       </div>
     </a-drawer>
+    <ViewElementModal ref="viewElementModal"/>
   </div>
 </template>
 
@@ -827,6 +829,7 @@ import Mergely from '../Mergely'
 import configOptions from '../Option'
 import SvgIcon from '@/components/SvgIcon'
 import Topology from '@/components/newTopology'
+import ViewElementModal from './ViewElementModal.vue'
 import {
   applyPom,
   bigScreenClose,
@@ -846,7 +849,7 @@ const Base64 = require('js-base64').Base64
 
 export default {
   name: 'AppAdd',
-  components: {Mergely, Ellipsis, SvgIcon,Topology},
+  components: {Mergely, Ellipsis, SvgIcon,Topology, ViewElementModal},
   data() {
     return {
       //血缘数据
@@ -1050,6 +1053,12 @@ export default {
   },
 
   methods: {
+    /**
+     * 查看组件
+     */
+    viewElement() {
+      this.$refs.viewElementModal.show()
+    },
     //步骤条可点击
     onStepsChange(current){
       this.current=current
@@ -1722,7 +1731,7 @@ export default {
     height: 100%;
     position: relative;
   }
-.app_controller{ 
+.app_controller{
   position: relative;
   .submit-btn{
     position: absolute;
@@ -1730,7 +1739,7 @@ export default {
     top:20px
   }
 }
-.app_controller{ 
+.app_controller{
   height: 100%;
   position: relative;
   .submit-btn{

@@ -1050,35 +1050,12 @@
 
       </div>
     </a-modal>
-    <a-modal
-      v-model="viewElementVisible"
-      title="查看组件"
-      width="70%"
-      ok-text="确认"
-      cancel-text="取消"
-      @ok="hideElementModal">
-      <div>
-        <a-select :default-value="activeElementType" style="width: 200px;">
-          <a-select-option v-for="item of elementType" :key="item.value" :value="item.value">
-            {{ item.type }}
-          </a-select-option>
-        </a-select>
-        <a-select :default-value="defaultDataSource" style="width: 200px;" @change="handleSourceChange">
-          <a-select-option v-for="item of DATA_SOURCE" :key="item.key" :value="item.code">
-            {{ item.name }}
-          </a-select-option>
-        </a-select>
-      </div>
 
-      <div class="sql-box" id="flink-sql-small" :class="'syntax-' + controller.flinkSql.success">
-      </div>
-      <p class="element-code"></p>
-    </a-modal>
+    <ViewElementModal ref="viewElementModal" />
   </div>
 </template>
 
 <script>
-import { DATA_SOURCE } from './constant'
 import Ellipsis from '@/components/Ellipsis'
 import { listConf } from '@api/project'
 import { get, update, exists, name, readConf, upload } from '@api/application'
@@ -1090,11 +1067,11 @@ import Different from '../Different'
 import configOptions from '../Option'
 import SvgIcon from '@/components/SvgIcon'
 import Topology from '@/components/newTopology'
+import ViewElementModal from './ViewElementModal.vue'
 import {LineageTable} from 'react-lineage-dag'
 const Base64 = require('js-base64').Base64
 import {
   initEditor,
-  initEditorSingle,
   initPodTemplateEditor,
   verifySQL,
   bigScreenOpen,
@@ -1112,53 +1089,9 @@ import edge from '@/components/newTopology/components/edge'
 import getOps from '@/components/Kinship/operator.jsx'
 export default {
   name: 'EditStreamX',
-  components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology},
+  components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology, ViewElementModal},
   data() {
     return {
-      defaultDataSource: '',
-      DATA_SOURCE: DATA_SOURCE,
-      viewElementVisible: false,
-      activeElementType: 'restful',
-      elementType: [
-        {
-        type: 'restful',
-        value: 'restful'
-      },
-      {
-        type: '加密/解密',
-        value: '加密/解密'
-      },{
-        type: '分支',
-        value: '分支'
-      },{
-        type: '字段合并拆分',
-        value: '字段合并拆分'
-      },{
-        type: '字段内容清洗',
-        value: '字段内容清洗'
-      },{
-        type: '空值转换',
-        value: '空值转换'
-      },{
-        type: '中文数字转换',
-        value: '中文数字转换'
-      },{
-        type: '日期时间转换',
-        value: '日期时间转换'
-      },{
-        type: '数据类型转换',
-        value: '数据类型转换'
-      },{
-        type: '过滤',
-        value: '过滤'
-      },{
-        type: '抽样',
-        value: '抽样'
-      },{
-        type: '去重 ',
-        value: '去重'
-      }
-      ],
       errorMessage:'',
       errorVisible:false,
       tables: [],
@@ -1353,15 +1286,6 @@ export default {
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
-    handleSourceChange(code) {
-      this.smallController.editor.flinkSql.setValue(code)
-    },
-    handleChangeType(val) {
-      this.activeElementType = val
-    },
-    hideElementModal() {
-      this.viewElementVisible = false
-    },
     lineageLoad(canvas){
       this.cvsRef.current = canvas
     },
@@ -1397,14 +1321,7 @@ export default {
      * 查看组件
      */
     viewElement() {
-      this.viewElementVisible = true
-      if (this.smallController) {
-        // 
-      } else {
-        this.$nextTick(() => {
-          this.smallController = initEditorSingle(this, DATA_SOURCE[0].code, '#flink-sql-small')
-        })
-      }
+      this.$refs.viewElementModal.show()
     },
     //生成血缘
     generateKinship(){
