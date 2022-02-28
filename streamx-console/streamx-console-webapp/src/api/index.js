@@ -71,7 +71,7 @@ export default {
     DASHBOARD: STREAMXAPI + '/flink/app/dashboard',
     MAIN: STREAMXAPI + '/flink/app/main',
     NAME: STREAMXAPI + '/flink/app/name',
-    EXISTS: STREAMXAPI + '/flink/app/exists',
+    EXISTS: STREAMXAPI + '/flink/app/checkName',
     CANCEL: STREAMXAPI + '/flink/app/cancel',
     DELETE: STREAMXAPI + '/flink/app/delete',
     DELETEBAK: STREAMXAPI + '/flink/app/deletebak',
