@@ -22,7 +22,7 @@
           @click="handleReset">
           Reset
         </a-button> -->
-        
+
           <a-button
             v-show="current!=0"
             @click="current--"
@@ -61,7 +61,8 @@
                 </span>
               </p>
               <div class="sql-box" style="position:relative" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
-                <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="generateKinship" :loading="kinshipLoading">生成血缘</a-button>
+                <a-button type="primary" style="position:absolute;bottom:30px;right:120px;z-index:99" @click="generateKinship" :loading="kinshipLoading">语法解析</a-button>
+                <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="viewElement">查看组件</a-button>
               </div>
               <a-icon
                 class="format-sql"
@@ -1049,6 +1050,19 @@
 
       </div>
     </a-modal>
+    <a-modal v-model="viewElementVisible" title="查看组件" ok-text="确认" cancel-text="取消" @ok="hideElementModal">
+      <div>
+        <a-select :default-value="activeElementType" style="width: 200px;">
+          <a-select-option v-for="item of elementType" :key="item.value" :value="item.value">
+            {{item.type}}
+          </a-select-option>
+        </a-select>
+      </div>
+
+      <div class="sql-box" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
+      </div>
+      <p class="element-code"></p>
+    </a-modal>
   </div>
 </template>
 
@@ -1088,6 +1102,48 @@ export default {
   components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
+      viewElementVisible: false,
+      activeElementType: 'restful',
+      elementType: [
+        {
+        type: 'restful',
+        value: 'restful'
+      },
+      {
+        type: '加密/解密',
+        value: '加密/解密'
+      },{
+        type: '分支',
+        value: '分支'
+      },{
+        type: '字段合并拆分',
+        value: '字段合并拆分'
+      },{
+        type: '字段内容清洗',
+        value: '字段内容清洗'
+      },{
+        type: '空值转换',
+        value: '空值转换'
+      },{
+        type: '中文数字转换',
+        value: '中文数字转换'
+      },{
+        type: '日期时间转换',
+        value: '日期时间转换'
+      },{
+        type: '数据类型转换',
+        value: '数据类型转换'
+      },{
+        type: '过滤',
+        value: '过滤'
+      },{
+        type: '抽样',
+        value: '抽样'
+      },{
+        type: '去重 ',
+        value: '去重'
+      }
+      ],
       errorMessage:'',
       errorVisible:false,
       tables: [],
@@ -1282,6 +1338,12 @@ export default {
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
+    handleChangeType(val) {
+      this.activeElementType = val
+    },
+    hideElementModal() {
+      this.viewElementVisible = false
+    },
     lineageLoad(canvas){
       this.cvsRef.current = canvas
     },
@@ -1294,8 +1356,6 @@ export default {
         this.cvsRef.current.focusCenterWithAnimate()
         this.reloadStatus=false
       }
-      
-      
     },
     onStepsChange(current){
       this.current=current
@@ -1314,6 +1374,12 @@ export default {
         this.reloadStatus = true
       })
       this.tables = [...this.tables]
+    },
+    /**
+     * 查看组件
+     */
+    viewElement() {
+      this.viewElementVisible = true
     },
     //生成血缘
     generateKinship(){
@@ -1347,7 +1413,7 @@ export default {
                     tableId: table.id
                   })
                 })
-                
+
                 this.kinShipVisible = true
                 setTimeout(()=>{
                   this.tables=res.tables
@@ -1358,7 +1424,7 @@ export default {
                 this.errorMessage=res
                 console.log(res)
               }
-              
+
             }else{
               this.$message.error('无法解析血缘')
             }
@@ -2169,7 +2235,7 @@ export default {
     flex: 1;
 
   }
-  
+
 }
 
 </style>
@@ -2187,7 +2253,7 @@ export default {
 //     height: 100%;
 //     position: relative;
 //   }
-.app_controller{ 
+.app_controller{
   height: 100%;
   position: relative;
   .submit-btn{
