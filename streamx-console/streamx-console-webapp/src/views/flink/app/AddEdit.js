@@ -55,17 +55,110 @@ export function globalOption(vue) {
   }
 }
 
-export function initEditor(vue) {
-  const controller = vue.controller
-  controller.flinkSql.value = arguments[1] || controller.flinkSql.defaultValue
+function generateController () {
+  return {
+    activeTab: 'pom',
+    podTemplateTab: 'pod-template',
+    tagCount: {
+      total: 1,
+      run: 1,
+      jm: 1,
+      tm: 1
+    },
+    visiable: {
+      mergely: false,
+      bigScreen: false
+    },
+    modal: {
+      destroyOnClose: true,
+      bigScreen: {
+        style: {
+          height: null,
+          padding: '5px'
+        },
+        title: 'Flink SQL'
+      }
+    },
+    editor: {
+      flinkSql: null,
+      bigScreen: null,
+      pom: null,
+      podTemplate: null,
+      jmPodTemplate: null,
+      tmPodTemplate: null
+    },
+    flinkSql: {
+      value: null,
+      errorLine: null,
+      errorColumn: null,
+      errorMsg: null,
+      errorStart: null,
+      errorEnd: null,
+      success: true
+    },
+    dependency: {
+      pom: new Map(),
+      jar: new Map()
+    },
+    pom: {
+      value: null,
+      error: null,
+      defaultValue: ''
+    }
+  }
+}
+
+export function initEditorSingle(vue, values, editorSelector) {
+  const controller = generateController()
+  controller.flinkSql.value = values || controller.flinkSql.defaultValue
   const option = Object.assign({}, globalOption(vue))
   option.value = controller.flinkSql.value
   option.minimap = {enabled: false}
-  controller.editor.flinkSql = monaco.editor.create(document.querySelector('#flink-sql'), option)
+  controller.editor.flinkSql = monaco.editor.create(document.querySelector(editorSelector), option)
   vue.$nextTick(() => {
     const formatSql = document.querySelector('.format-sql')
     const bigScreen = document.querySelector('.big-screen')
-    const editorEl = document.querySelector('#flink-sql>.monaco-editor')
+    const editorEl = document.querySelector(`${editorSelector}>.monaco-editor`)
+    editorEl.appendChild(formatSql)
+    editorEl.appendChild(bigScreen)
+  })
+
+  //输入事件触发...
+  // controller.editor.flinkSql.onDidChangeModelContent(() => {
+  //   controller.flinkSql.value = controller.editor.flinkSql.getValue()
+  //   if (sqlNotEmpty(vue)) {
+  //     verifySQL(vue)
+  //   }
+  // })
+  return controller
+
+  // //pom
+  // const pomOption = Object.assign({}, globalOption(vue))
+  // pomOption.language = 'xml'
+  // pomOption.value = controller.pom.defaultValue
+  // pomOption.minimap = {enabled: false}
+  // controller.editor.pom = monaco.editor.create(document.querySelector('.pom-box'), pomOption)
+  // vue.$nextTick(() => {
+  //   const applyPom = document.querySelector('.apply-pom')
+  //   document.querySelector('.pom-box>.monaco-editor').appendChild(applyPom)
+  // })
+
+  // controller.editor.pom.onDidChangeModelContent(() => {
+  //   controller.pom.value = controller.editor.pom.getValue()
+  // })
+}
+
+export function initEditor(vue, values, editorSelector) {
+  const controller = vue.controller
+  controller.flinkSql.value = values || controller.flinkSql.defaultValue
+  const option = Object.assign({}, globalOption(vue))
+  option.value = controller.flinkSql.value
+  option.minimap = {enabled: false}
+  controller.editor.flinkSql = monaco.editor.create(document.querySelector(editorSelector), option)
+  vue.$nextTick(() => {
+    const formatSql = document.querySelector('.format-sql')
+    const bigScreen = document.querySelector('.big-screen')
+    const editorEl = document.querySelector(`${editorSelector}>.monaco-editor`)
     editorEl.appendChild(formatSql)
     editorEl.appendChild(bigScreen)
   })

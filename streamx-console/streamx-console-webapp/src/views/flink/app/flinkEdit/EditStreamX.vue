@@ -1050,16 +1050,27 @@
 
       </div>
     </a-modal>
-    <a-modal v-model="viewElementVisible" title="查看组件" ok-text="确认" cancel-text="取消" @ok="hideElementModal">
+    <a-modal
+      v-model="viewElementVisible"
+      title="查看组件"
+      width="70%"
+      ok-text="确认"
+      cancel-text="取消"
+      @ok="hideElementModal">
       <div>
         <a-select :default-value="activeElementType" style="width: 200px;">
           <a-select-option v-for="item of elementType" :key="item.value" :value="item.value">
-            {{item.type}}
+            {{ item.type }}
+          </a-select-option>
+        </a-select>
+        <a-select :default-value="defaultDataSource" style="width: 200px;" @change="handleSourceChange">
+          <a-select-option v-for="item of DATA_SOURCE" :key="item.key" :value="item.code">
+            {{ item.name }}
           </a-select-option>
         </a-select>
       </div>
 
-      <div class="sql-box" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
+      <div class="sql-box" id="flink-sql-small" :class="'syntax-' + controller.flinkSql.success">
       </div>
       <p class="element-code"></p>
     </a-modal>
@@ -1067,6 +1078,7 @@
 </template>
 
 <script>
+import { DATA_SOURCE } from './constant'
 import Ellipsis from '@/components/Ellipsis'
 import { listConf } from '@api/project'
 import { get, update, exists, name, readConf, upload } from '@api/application'
@@ -1082,6 +1094,7 @@ import {LineageTable} from 'react-lineage-dag'
 const Base64 = require('js-base64').Base64
 import {
   initEditor,
+  initEditorSingle,
   initPodTemplateEditor,
   verifySQL,
   bigScreenOpen,
@@ -1102,6 +1115,8 @@ export default {
   components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology},
   data() {
     return {
+      defaultDataSource: '',
+      DATA_SOURCE: DATA_SOURCE,
       viewElementVisible: false,
       activeElementType: 'restful',
       elementType: [
@@ -1338,6 +1353,9 @@ export default {
   methods: {
     ...mapActions(['CleanAppId']),
     ...mapGetters(['applicationId']),
+    handleSourceChange(code) {
+      this.smallController.editor.flinkSql.setValue(code)
+    },
     handleChangeType(val) {
       this.activeElementType = val
     },
@@ -1380,6 +1398,13 @@ export default {
      */
     viewElement() {
       this.viewElementVisible = true
+      if (this.smallController) {
+        // 
+      } else {
+        this.$nextTick(() => {
+          this.smallController = initEditorSingle(this, DATA_SOURCE[0].code, '#flink-sql-small')
+        })
+      }
     },
     //生成血缘
     generateKinship(){
@@ -2137,7 +2162,7 @@ export default {
         if (this.app.jobType === 2) {
           this.flinkSql.sql = this.app.flinkSql || null
           this.flinkSql.dependency = this.app.dependency || null
-          initEditor(this,Base64.decode(this.flinkSql.sql))
+          initEditor(this, Base64.decode(this.flinkSql.sql), '#flink-sql')
           this.handleInitDependency()
         }
         if (this.app.executionMode === 6) {
