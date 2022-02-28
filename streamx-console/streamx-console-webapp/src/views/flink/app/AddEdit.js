@@ -148,12 +148,13 @@ export function initEditorSingle(vue, values, editorSelector) {
   // })
 }
 
-export function initEditor(vue, values, editorSelector) {
+export function initEditor(vue, values, editorSelector='#flink-sql') {
   const controller = vue.controller
   controller.flinkSql.value = values || controller.flinkSql.defaultValue
   const option = Object.assign({}, globalOption(vue))
   option.value = controller.flinkSql.value
   option.minimap = {enabled: false}
+  console.log(editorSelector)
   controller.editor.flinkSql = monaco.editor.create(document.querySelector(editorSelector), option)
   vue.$nextTick(() => {
     const formatSql = document.querySelector('.format-sql')

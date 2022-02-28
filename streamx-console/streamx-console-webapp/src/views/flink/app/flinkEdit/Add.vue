@@ -144,7 +144,18 @@
               Apply
             </a-button>
 
-            <div
+            <div v-if="uploadJars.length > 0">
+              <a-select style="width: 100%; margin-top: 20px;" v-model="activeJar">
+                <a-select-option
+                  :value="value"
+                  v-for="(value, index) in uploadJars"
+                  :key="`upload_jars_${index}`">
+                  {{value}}
+                </a-select-option>
+              </a-select>
+            </div>
+
+            <!-- <div
               v-if="dependency.length > 0 || uploadJars.length > 0"
               class="dependency-box">
               <a-alert
@@ -161,8 +172,7 @@
                   <a-icon type="close" class="icon-close" @click="handleRemovePom(value)"/>
                 </template>
               </a-alert>
-              <a-alert
-                class="dependency-item"
+              <
                 v-for="(value, index) in uploadJars"
                 :key="`upload_jars_${index}`"
                 type="info"
@@ -172,7 +182,7 @@
                   <a-icon type="close" class="icon-close" @click="handleRemoveJar(value)"/>
                 </template>
               </a-alert>
-            </div>
+            </div> -->
           </a-form-item>
         </div>
         <div v-show="current==2" class="setpContent">
@@ -852,6 +862,7 @@ export default {
   components: {Mergely, Ellipsis, SvgIcon,Topology, ViewElementModal},
   data() {
     return {
+      activeJar: '',
       //血缘数据
       kinshipData:{
         nodes : [] ,
@@ -1303,6 +1314,9 @@ export default {
         formData.append('executionMode',executionMode)
         upload(formData).then((resp) => {
           this.loading = false
+
+          this.activeJar = data.file.name
+
           this.controller.dependency.jar.set(data.file.name, data.file.name)
           this.handleUpdateDependency()
         }).catch((error) => {

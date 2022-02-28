@@ -7,16 +7,22 @@
     cancel-text="取消"
     @ok="hideElementModal">
     <div>
-      <a-select :default-value="defaultCodeExample" style="width: 200px;" @change="handleSourceChange">
-        <a-select-option v-for="item of CODE_EXAMPLE" :key="item.key" :value="item.code">
-          {{ item.name }}
-        </a-select-option>
-      </a-select>
-      <a-select :default-value="defaultDataSource" style="width: 200px;" @change="handleSourceChange">
-        <a-select-option v-for="item of DATA_SOURCE" :key="item.key" :value="item.code">
-          {{ item.name }}
-        </a-select-option>
-      </a-select>
+      <a-form layout="inline">
+        <a-form-item label="组件">
+          <a-select :default-value="defaultCodeExample" style="width: 200px;" @change="handleSourceChange">
+            <a-select-option v-for="item of CODE_EXAMPLE" :key="item.key" :value="item.code">
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="数据源">
+          <a-select :default-value="defaultDataSource" style="width: 200px;" @change="handleSourceChange">
+            <a-select-option v-for="item of DATA_SOURCE" :key="item.key" :value="item.code">
+              {{ item.name }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
     </div>
 
     <div class="sql-box" id="flink-sql-small">

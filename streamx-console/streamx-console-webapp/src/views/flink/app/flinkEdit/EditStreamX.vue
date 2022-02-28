@@ -130,7 +130,18 @@
               Apply
             </a-button>
 
-            <div
+            <div v-if="uploadJars.length > 0">
+              <a-select style="width: 100%; margin-top: 20px;" v-model="activeJar">
+                <a-select-option
+                  :value="value"
+                  v-for="(value, index) in uploadJars"
+                  :key="`upload_jars_${index}`">
+                  {{value}}
+                </a-select-option>
+              </a-select>
+            </div>
+
+            <!-- <div
               v-if="dependency.length > 0 || uploadJars.length > 0"
               class="dependency-box">
               <a-alert
@@ -157,7 +168,7 @@
                   <a-icon type="close" class="icon-close" @click="handleRemoveJar(value)" />
                 </template>
               </a-alert>
-            </div>
+            </div> -->
           </a-form-item>
         </div>
         <div v-show="current==2" class="setpContent">
@@ -1092,6 +1103,7 @@ export default {
   components: { LineageTable,Mergely, Different, Ellipsis, SvgIcon, Topology, ViewElementModal},
   data() {
     return {
+      activeJar: '',
       errorMessage:'',
       errorVisible:false,
       tables: [],
@@ -1301,6 +1313,12 @@ export default {
     },
     onStepsChange(current){
       this.current=current
+
+      if(this.current == 1) {
+        if(this.uploadJars.length) {
+          this.activeJar = this.uploadJars[0]
+        }
+      }
     },
     //关闭血缘
     kinShipCancel(){
@@ -1690,6 +1708,10 @@ export default {
         upload(formData).then((response) => {
           this.loading = false
           this.controller.dependency.jar.set(data.file.name, data.file.name)
+
+          // 上传成功 更新列表
+          this.activeJar = data.file.name
+
           this.handleUpdateDependency()
         }).catch((error) => {
           this.$message.error(error.message)
@@ -1799,7 +1821,7 @@ export default {
               const unit = opt['unit'] || ''
               const name = opt['name']
               if (typeof v === 'string') {
-                options[name] = v.replace(/[k|m|g]b$/g, '') + unit
+                options[name] = v?.replace(/[k|m|g]b$/g, '') + unit
               } else if (typeof v === 'number') {
                 options[name] = v + unit
               } else {
