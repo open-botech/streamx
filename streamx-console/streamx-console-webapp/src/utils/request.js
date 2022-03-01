@@ -9,7 +9,7 @@ import {message, Modal} from 'ant-design-vue'
 
 const http = axios.create({
   withCredentials: false,
-  timeout: 1000 * 10, // 请求超时时间
+  timeout: 1000 * 60, // 请求超时时间
   responseType: 'json',
   validateStatus(status) {
     // 200 外的状态码都认定为失败
