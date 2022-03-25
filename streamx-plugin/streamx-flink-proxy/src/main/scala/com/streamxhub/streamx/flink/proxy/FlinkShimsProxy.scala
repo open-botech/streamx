@@ -151,7 +151,7 @@ object FlinkShimsProxy extends Logger {
           if (majorVersion != null && majorVersion.equals(shimsMatcher.group(1))) {
             shimsUrls += jar.toURI.toURL
           }
-        } else if (!EXCLUDE_PATTERN.matcher(jar.getName).matches()) {
+        } else if (INCLUDE_PATTERN.matcher(jar.getName).matches()) {
           shimsUrls += jar.toURI.toURL
         } else {
           logInfo(s"exclude ${jar.getName}")

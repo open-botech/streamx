@@ -119,7 +119,7 @@ export function checkJar(params) {
 
 export function uploadAddProject(params) {
   return http.upload(api.Project.PROJAR, params)
-  
+}
 export function verifySchema(params) {
   return http.post(api.Application.VERIFYSCHEMA, params)
 }

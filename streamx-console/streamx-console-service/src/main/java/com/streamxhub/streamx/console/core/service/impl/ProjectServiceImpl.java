@@ -41,7 +41,6 @@ import com.streamxhub.streamx.console.core.dao.ProjectMapper;
 import com.streamxhub.streamx.console.core.entity.Application;
 import com.streamxhub.streamx.console.core.entity.Project;
 import com.streamxhub.streamx.console.core.enums.BuildState;
-import com.streamxhub.streamx.console.core.enums.DeployState;
 import com.streamxhub.streamx.console.core.runner.EnvInitializer;
 import com.streamxhub.streamx.console.core.enums.LaunchState;
 import com.streamxhub.streamx.console.core.service.ApplicationService;
@@ -49,7 +48,6 @@ import com.streamxhub.streamx.console.core.service.ProjectService;
 import com.streamxhub.streamx.console.core.task.FlinkTrackingTask;
 import com.streamxhub.streamx.console.core.websocket.WebSocketEndpoint;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
@@ -195,8 +193,8 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project>
                 // 更新部署状态
                 FlinkTrackingTask.refreshTracking(() -> applications.forEach((app) -> {
                     log.info("update deploy by project: {}, appName:{}", project.getName(), app.getJobName());
-                    app.setDeploy(DeployState.NEED_DEPLOY_AFTER_BUILD.get());
-                    this.applicationService.updateDeploy(app);
+                    app.setLaunch(LaunchState.NEED_LAUNCH.get());
+                    this.applicationService.updateLaunch(app);
                 }));
                 this.baseMapper.successBuild(project);
                 return;
