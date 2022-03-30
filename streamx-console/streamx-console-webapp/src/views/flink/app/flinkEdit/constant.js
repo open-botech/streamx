@@ -195,6 +195,58 @@ CREATE TABLE table2 (id string,name string
 ) WITH   (
        'connector' = 'print');
 INSERT INTO table2 SELECT id,name FROM table1;`
+  },
+  {
+    key: 'Datahub',
+    name: 'Datahub',
+    code: `CREATE TABLE table1 (MotorVehicleID String,StroageUrl1 String,ShotTime TIMESTAMP)
+    WITH  (
+        'connector' = 'datahub',
+        'endPoint' = 'url',
+        'accessId' = '',
+        'accessKey' =  '',
+        'project' = 'demo',
+        'topic' =  'test',
+        'subId' =  ''
+    );`
+  },
+  {
+    key: 'KafkaProxy',
+    name: 'KafkaProxy',
+    code: `CREATE TABLE table1 (id String,name String)
+    WITH (
+        'connector' = 'kafka',
+        'topic' = 'test',
+        'properties.bootstrap.servers' = 'localhost:9092',
+        'properties.group.id' = 'demo-test-group'
+    );
+CREATE TABLE table2 (id String,name String)
+    WITH (
+        'connector' = 'kafkaproxy',
+        'url' = 'http://localhost:8082/topics',
+        'topic' = 'test',
+        'batchIntervalMS' = '1000',
+        'batchSize' = '200'
+    );
+INSERT INTO table2 SELECT id,name FROM table1;`
+  },
+  {
+    key: '视图库',
+    name: '视图库',
+    code: `
+CREATE TABLE table2 (
+    id String,
+    name String
+) WITH (
+    'connector' = 'viid',
+    'url' = 'http://localhost:9001',
+    'infoIDs' = '13',
+    'title' = '',
+    'subscribeID' = '',
+    'batchIntervalMS' = '1000',
+    'batchSize' = '1000',
+);
+`
   }
 ]
 
