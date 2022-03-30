@@ -130,7 +130,7 @@
               Apply
             </a-button>
 
-            <div v-if="uploadJars.length > 0">
+            <!-- <div v-if="uploadJars.length > 0">
               <a-select allowClear style="width: 100%; margin-top: 20px;" v-model="activeJar">
                 <a-select-option
                   :value="value"
@@ -139,9 +139,9 @@
                   {{ value }}
                 </a-select-option>
               </a-select>
-            </div>
+            </div> -->
 
-            <!-- <div
+            <div
               v-if="dependency.length > 0 || uploadJars.length > 0"
               class="dependency-box">
               <a-alert
@@ -168,7 +168,7 @@
                   <a-icon type="close" class="icon-close" @click="handleRemoveJar(value)" />
                 </template>
               </a-alert>
-            </div> -->
+            </div>
           </a-form-item>
         </div>
         <div v-show="current==2" class="setpContent">
@@ -2101,7 +2101,7 @@ export default {
         if (this.app.jobType === 2) {
           this.flinkSql.sql = this.app.flinkSql || null
           this.flinkSql.dependency = this.app.dependency || null
-          initEditor(this, Base64.decode(this.flinkSql.sql), '#flink-sql')
+          initEditor(this, Base64.decode(this.flinkSql.sql || ''), '#flink-sql')
           this.handleInitDependency()
         }
         if (this.app.executionMode === 6) {
