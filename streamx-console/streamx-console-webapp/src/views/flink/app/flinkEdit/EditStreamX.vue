@@ -131,12 +131,12 @@
             </a-button>
 
             <div v-if="uploadJars.length > 0">
-              <a-select style="width: 100%; margin-top: 20px;" v-model="activeJar">
+              <a-select allowClear style="width: 100%; margin-top: 20px;" v-model="activeJar">
                 <a-select-option
                   :value="value"
                   v-for="(value, index) in uploadJars"
                   :key="`upload_jars_${index}`">
-                  {{value}}
+                  {{ value }}
                 </a-select-option>
               </a-select>
             </div>
