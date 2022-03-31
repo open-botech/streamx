@@ -26,14 +26,18 @@ import org.apache.flink.table.api.{EnvironmentSettings, TableEnvironment}
 import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
 import org.apache.flink.table.api.internal.TableEnvironmentImpl
 
+import java.util
+
 object FlinkSqlLineage extends Logger {
 
   def lineageSql(sql: String): String = {
     val settings = EnvironmentSettings.newInstance.inStreamingMode.build
     val context = TableEnvironment.create(settings)
+    val stmts = new util.ArrayList[String]();
     SqlCommandParser.parseSQL(sql).foreach(x => {
       val args = if (x.operands.isEmpty) null else x.operands.head
       val command = x.command.name
+      stmts.add(x.originSql)
       x.command match {
         case USE =>
           context.useDatabase(args)
@@ -41,19 +45,16 @@ object FlinkSqlLineage extends Logger {
         case USE_CATALOG =>
           context.useCatalog(args)
           logInfo(s"$command: $args")
-        case SELECT =>
-          throw new Exception(s"[StreamX] Unsupported SELECT in current version.")
         case CREATE_FUNCTION | DROP_FUNCTION | ALTER_FUNCTION |
              CREATE_CATALOG | DROP_CATALOG |
              CREATE_TABLE | DROP_TABLE | ALTER_TABLE |
              CREATE_VIEW | DROP_VIEW |
              CREATE_DATABASE | DROP_DATABASE | ALTER_DATABASE =>
           context.executeSql(x.originSql)
-
         case _ =>
       }
     })
-    context.asInstanceOf[TableEnvironmentImpl].explainLineage(sql)
+    context.asInstanceOf[TableEnvironmentImpl].explainLineage(stmts)
 
 
   }

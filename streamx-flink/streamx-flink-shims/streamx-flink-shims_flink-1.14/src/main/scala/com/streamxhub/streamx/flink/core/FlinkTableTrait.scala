@@ -125,7 +125,7 @@ abstract class FlinkTableTrait(val parameter: ParameterTool,
 
   override def explainSql(statement: String, extraDetails: ExplainDetail*): String = tableEnv.explainSql(statement, extraDetails: _*)
 
-  override def explainLineage(statement: String ): String = tableEnv.explainLineage(statement)
+  override def explainLineage(statements: java.util.List[String] ): String = tableEnv.explainLineage(statements)
 
   override def sqlQuery(query: String): Table = tableEnv.sqlQuery(query)
 

@@ -1927,17 +1927,13 @@ public class TableEnvironmentImpl implements TableEnvironmentInternal {
         }
         return executeInternal(transformations, sinkIdentifierNames);
     }
+
     @Override
-    public String explainLineage(String sql) {
-        String[] stmts = sql.split(";");
+    public String explainLineage(List<String> stmts) {
         List<Operation> operations = new ArrayList<>();
         for (String stmt : stmts) {
             operations.addAll(getParser().parse(stmt));
         }
-        return explainLineage(operations);
-    }
-
-    private String explainLineage(List<Operation> operations) {
         return planner.explainLineage(operations);
     }
 

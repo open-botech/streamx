@@ -36,6 +36,7 @@ import org.apache.flink.table.types.AbstractDataType;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -939,7 +940,7 @@ public interface TableEnvironment {
      */
     String explainSql(String statement, ExplainDetail... extraDetails);
 
-    String explainLineage(String statement);
+    String explainLineage(List<String> statements);
 
     /**
      * Returns completion hints for the given statement at the given cursor position. The completion
