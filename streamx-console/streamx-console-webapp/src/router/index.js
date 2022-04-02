@@ -166,13 +166,13 @@ router.beforeEach((to, from, next) => {
           })
           location.reload()
           NProgress.done()
-          // store.dispatch('SignOut').then(() => { 
+          // store.dispatch('SignOut').then(() => {
           //   const redirect=to.name=='signin'?{}:{
           //     redirect:to.fullPath
           //   }
           //   //正常跳转登录
           //   next({ path: '/user/signin', query: { ...redirect } })
-            
+
           // })
         })
       }
@@ -185,7 +185,7 @@ router.beforeEach((to, from, next) => {
       username: 'admin',
       password: 'streamx'
     }).then(()=>{
-      location.reload()  
+      location.reload()
     })
     NProgress.done()
     // if (whiteList.includes(to.name)) {
@@ -195,7 +195,7 @@ router.beforeEach((to, from, next) => {
     //     redirect:to.fullPath
     //   }
     //   next({ name: 'signin', query: { ...redirect } })
-    //   
+    //
     // }
   }
 })
