@@ -240,6 +240,11 @@
               class="flinksql-tool-item"
               type="primary"
               size="small"
+              @click="generateKinship">血缘分析
+            </a-button>
+            <a-button
+              class="flinksql-tool-item"
+              size="small"
               icon="check"
               @click="handleVerifySql">Verify
             </a-button>
@@ -1462,21 +1467,52 @@
 
     <Different ref="different"/>
 
+    <a-modal
+      v-model="kinShipVisible"
+      @cancel="kinShipCancel"
+      title="血缘分析"
+      :footer="null"
+      width="100%"
+      height="100%"
+      class="kinShipBox"
+      :dialog-style="{ top: '0',padding:'0' }">
+      <lineage-table
+        style="height:100%"
+        :tables="tables"
+        :relations="relations"
+        @onLoaded="lineageLoad"
+        @onEachFrame="reload"></lineage-table>
+    </a-modal>
+    <a-modal
+      v-model="errorVisible"
+      title="生成失败"
+      :footer="null"
+      width="100%"
+      height="100%"
+      :dialog-style="{ top: '0',padding:'0' }">
+      <div v-html="errorMessage" style="white-space: pre-line;">
+
+      </div>
+    </a-modal>
+
   </a-card>
 </template>
 
 <script>
+
+
 const Base64 = require('js-base64').Base64
 import Ellipsis from '@/components/Ellipsis'
 import { listConf } from '@api/project'
 import { get, update, checkName, name, readConf, upload } from '@api/application'
 import { history as confHistory, get as getVer, template, sysHadoopConf  } from '@api/config'
-import { get as getSQL, history as sqlhistory } from '@/api/flinkSql'
+import { get as getSQL, history as sqlhistory,kinship } from '@/api/flinkSql'
 import { mapActions, mapGetters } from 'vuex'
 import Mergely from './Mergely'
 import Different from './Different'
 import configOptions from './Option'
 import SvgIcon from '@/components/SvgIcon'
+import {LineageTable} from 'react-lineage-dag'
 import { toPomString } from './Pom'
 import {list as listFlinkEnv} from '@/api/flinkEnv'
 import {list as listFlinkCluster} from '@/api/flinkCluster'
@@ -1510,14 +1546,21 @@ import {
   extractHostAliasFromPodTemplate,
   previewHostAlias
 } from '@/api/flinkPodtmpl'
-
+import getOps from '@/components/lineage/operator'
 
 
 export default {
   name: 'EditStreamX',
-  components: { Mergely, Different, Ellipsis, SvgIcon },
+  components: { LineageTable, Mergely, Different, Ellipsis, SvgIcon },
   data() {
     return {
+      kinShipVisible:false,
+      kinshipLoading:false,
+      errorVisible:false,
+      errorMessage:'',
+      relations: [],
+      tables:[],
+      cvsRef:{},
       strategy: 1,
       app: null,
       compareDisabled: true,
@@ -1714,7 +1757,6 @@ export default {
     this.optionsKeyMapping = new Map()
     this.optionsValueMapping = new Map()
     this.options.forEach((item, index, array) => {
-      console.table(index)
       this.optionsKeyMapping.set(item.key, item)
       this.optionsValueMapping.set(item.name, item.key)
       this.form.getFieldDecorator(item.key, { initialValue: item.defaultValue, preserve: true })
@@ -2725,7 +2767,91 @@ export default {
           this.useSysHadoopConf = this.app.k8sHadoopIntegration
         }
       })
-    }
+    },
+    //生成血缘
+    generateKinship(){
+      this.kinshipLoading=true
+      verifySQL(this,(success)=>{
+        if(success){
+          kinship({
+            sql:this.controller.flinkSql.value,
+            versionId:this.versionId,
+            jars:this.uploadJars[0]?this.uploadJars[0]:''
+          }).then(res=>{
+            if(res){
+              console.log(res)
+              if(res.relations){
+                res.relations.forEach(item=>{
+                  item.srcTableId=item.srcTable
+                  item.tgtTableId=item.tgtTable
+                })
+                res.tables.forEach(item=>{
+                  item.isFold=true
+                  item.id=item.name
+                  item.columns.forEach(col=>{
+                    col.title=col.name
+                  })
+                })
+                res.tables.forEach(table => {
+                  table.operators = getOps({
+                    isFold: !!table.isFold,
+                    onAction:this.onAction,
+                    tableId: table.id
+                  })
+                })
+                this.kinShipVisible = true
+                setTimeout(()=>{
+                  this.tables=res.tables
+                  this.relations=res.relations
+                },1000)
+              }else{
+                this.errorVisible=true
+                this.errorMessage=res
+                console.log(res)
+              }
+            }else{
+              this.$message.error('无法解析血缘')
+            }
+            this.kinshipLoading=false
+          }).catch(()=>{
+            this.kinshipLoading=false
+          })
+          // this.versionId
+        }else{
+          this.kinshipLoading=false
+        }
+      })
+    },
+    //关闭血缘
+    kinShipCancel(){
+      this.tables=[]
+      this.relations=[]
+    },
+    lineageLoad(canvas){
+      this.cvsRef.current = canvas
+    },
+    reload(){
+      if (!this.cvsRef.current) {
+        return
+      }
+      if(this.reloadStatus){
+        this.cvsRef.current.relayout()
+        this.cvsRef.current.focusCenterWithAnimate()
+        this.reloadStatus=false
+      }
+    },
+    onClose() {
+      this.kinShipVisible = false
+    },
+    onAction (action, tableId) {
+      this.tables.forEach(table => {
+        if(table.id !== tableId) {
+          return
+        }
+        table.isFold = !table.isFold
+      })
+      this.tables = [...this.tables]
+    },
   },
 
   watch: {

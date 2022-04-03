@@ -77,4 +77,6 @@ public interface FlinkSqlService extends IService<FlinkSql> {
     void rollback(Application application);
 
     SqlError verifySql(String sql, Long versionId);
+
+    String lineageSql(String sql, Long versionId, String jars) ;
 }

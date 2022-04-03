@@ -33,3 +33,6 @@ export function get (params) {
 export function history (params) {
   return http.post(api.FlinkSQL.HISTORY, params)
 }
+export function kinship (params) {
+  return http.post(api.FlinkSQL.KINSHIP, params)
+}

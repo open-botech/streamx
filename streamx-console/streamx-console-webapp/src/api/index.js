@@ -133,7 +133,8 @@ export default {
   FlinkSQL: {
     VERIFY: '/flink/sql/verify',
     GET: '/flink/sql/get',
-    HISTORY: '/flink/sql/history'
+    HISTORY: '/flink/sql/history',
+    KINSHIP: '/flink/sql/lineage'
   },
   SETTING: {
     GET: '/flink/setting/get',

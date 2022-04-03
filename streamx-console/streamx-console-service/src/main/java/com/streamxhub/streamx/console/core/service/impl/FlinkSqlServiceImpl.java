@@ -186,4 +186,24 @@ public class FlinkSqlServiceImpl extends ServiceImpl<FlinkSqlMapper, FlinkSql> i
     private boolean isFlinkSqlBacked(FlinkSql sql) {
         return backUpService.isFlinkSqlBacked(sql.getAppId(), sql.getId());
     }
+
+    public String lineageSql(String sql, Long versionId, String jars) {
+        FlinkEnv flinkEnv = flinkEnvService.getById(versionId);
+            return FlinkShimsProxy.proxy(flinkEnv.getFlinkVersion(), jars, (Function<ClassLoader, String>) classLoader -> {
+                try {
+                    Class<?> clazz = classLoader.loadClass("com.streamxhub.streamx.flink.core.FlinkSqlLineage");
+                    Method method = clazz.getDeclaredMethod("lineageSql", String.class);
+                    method.setAccessible(true);
+                    Object sqlError = method.invoke(null, sql);
+                    if (sqlError == null) {
+                        return null;
+                    }
+                    return FlinkShimsProxy.getObject(this.getClass().getClassLoader(), sqlError);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    log.error("verifySql invocationTargetException: {}", ExceptionUtils.stringifyException(e));
+                }
+                return null;
+            });
+        }
 }

@@ -114,4 +114,9 @@ public class FlinkSqlController {
         return RestResponse.create().put("word", sqlComplete.getComplete(sql));
     }
 
+    @PostMapping("lineage")
+    public String lineage(String sql, Long versionId, String jars)  {
+        return flinkSqlService.lineageSql(sql, versionId, jars);
+    }
+
 }
