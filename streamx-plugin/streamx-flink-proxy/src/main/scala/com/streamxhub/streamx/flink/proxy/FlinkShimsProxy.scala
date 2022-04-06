@@ -96,19 +96,13 @@ object FlinkShimsProxy extends Logger {
   private[this] def getFlinkShimsClassLoader(flinkVersion: FlinkVersion): ClassLoader = {
     val majorVersion = flinkVersion.majorVersion
     logInfo(flinkVersion.toString)
-
     SHIMS_CLASS_LOADER_CACHE.getOrElseUpdate(s"${flinkVersion.fullVersion}", {
-      //1) flink/lib
-      val libURL = getFlinkHomeLib(flinkVersion.flinkHome)
-      val shimsUrls = ListBuffer[URL](libURL: _*)
-
-      //2) shims jar
+      val shimsUrls = ListBuffer[URL]()
+      //1) shims jar
       val appHome = System.getProperty("app.home")
       require(appHome != null, "app.home is not found on System env.")
-
       val libPath = new File(s"$appHome/lib")
       require(libPath.exists())
-
       libPath.listFiles().foreach(jar => {
         try {
           val shimsMatcher = SHIMS_PATTERN.matcher(jar.getName)
@@ -124,6 +118,10 @@ object FlinkShimsProxy extends Logger {
           case e: Exception => e.printStackTrace()
         }
       })
+
+      //2) flink/lib
+      val libURL = getFlinkHomeLib(flinkVersion.flinkHome)
+      shimsUrls.appendAll(libURL)
 
       new ChildFirstClassLoader(
         shimsUrls.toArray,

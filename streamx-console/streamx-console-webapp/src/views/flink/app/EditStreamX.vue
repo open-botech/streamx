@@ -240,7 +240,7 @@
               class="flinksql-tool-item"
               type="primary"
               size="small"
-              @click="generateKinship">血缘分析
+              @click="generateKinship">lineage
             </a-button>
             <a-button
               class="flinksql-tool-item"
@@ -1480,8 +1480,7 @@
         style="height:100%"
         :tables="tables"
         :relations="relations"
-        @onLoaded="lineageLoad"
-        @onEachFrame="reload"></lineage-table>
+        onEachFrame={() => { }}></lineage-table>
     </a-modal>
     <a-modal
       v-model="errorVisible"

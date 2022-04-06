@@ -27,7 +27,6 @@ import org.apache.flink.api.dag.Transformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.table.api.*;
-import org.apache.flink.table.api.internal.*;
 import org.apache.flink.table.catalog.WatermarkSpec;
 import org.apache.flink.table.catalog.*;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
