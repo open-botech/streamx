@@ -1,4 +1,5 @@
 <template>
+<a-spin :spinning="kinshipLoading">
   <a-card
     :body-style="{padding: '24px 32px'}"
     :bordered="false"
@@ -1496,6 +1497,7 @@
     </a-modal>
 
   </a-card>
+</a-spin>
 </template>
 
 <script>
