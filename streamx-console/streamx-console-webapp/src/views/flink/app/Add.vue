@@ -1,4 +1,5 @@
 <template>
+  <a-spin :spinning="kinshipLoading">
   <a-card
     :body-style="{padding: '24px 32px'}"
     :bordered="false"
@@ -206,6 +207,12 @@
             <a-button
               class="flinksql-tool-item"
               type="primary"
+              size="small"
+              @click="generateKinship">Lineage
+            </a-button>
+            <a-button
+              class="flinksql-tool-item"
+              type="default"
               size="small"
               icon="check"
               @click="handleVerifySql">Verify
@@ -1471,7 +1478,35 @@
       @close="handleEditConfClose"
       @ok="handleEditConfOk"
       :visiable="controller.visiable.conf"/>
+    <a-modal
+      v-model="kinShipVisible"
+      @cancel="kinShipCancel"
+      title="血缘分析"
+      :footer="null"
+      width="100%"
+      height="100%"
+      class="kinShipBox"
+      :dialog-style="{ top: '0',padding:'0' }">
+      <lineage-table
+        style="height:100%"
+        :tables="tables"
+        :relations="relations"
+        @onLoaded="lineageLoad"
+        @onEachFrame="reload"></lineage-table>
+    </a-modal>
+    <a-modal
+      v-model="errorVisible"
+      title="生成失败"
+      :footer="null"
+      width="100%"
+      height="100%"
+      :dialog-style="{ top: '0',padding:'0' }">
+      <div v-html="errorMessage" style="white-space: pre-line;">
+
+      </div>
+    </a-modal>
   </a-card>
+  </a-spin>
 </template>
 
 <script>
@@ -1486,6 +1521,9 @@ import Mergely from './Mergely'
 import configOptions from './Option'
 import SvgIcon from '@/components/SvgIcon'
 import { sysHadoopConf } from '@api/config'
+import {LineageTable} from 'react-lineage-dag'
+import getOps from '@/components/lineage/operator'
+import { kinship } from '@/api/flinkSql'
 
 import {
   uploadJars as histUploadJars,
@@ -1525,9 +1563,16 @@ const Base64 = require('js-base64').Base64
 
 export default {
   name: 'AppAdd',
-  components: {Mergely, Ellipsis, SvgIcon},
+  components: {LineageTable,Mergely, Ellipsis, SvgIcon},
   data() {
     return {
+      kinShipVisible:false,
+      kinshipLoading:false,
+      errorVisible:false,
+      errorMessage:'',
+      relations: [],
+      tables:[],
+      cvsRef:{},
       jobType: 'sql',
       resourceFrom: null,
       tableEnv: 1,
@@ -2695,6 +2740,86 @@ export default {
         .then((resp) => {
           this.hostAliasPreview = resp.data
         })
+    },
+    generateKinship(){
+      this.kinshipLoading=true
+      verifySQL(this,(success)=>{
+        if(success){
+          kinship({
+            sql:this.controller.flinkSql.value,
+            versionId:this.versionId,
+            jars:this.uploadJars[0]?this.uploadJars[0]:''
+          }).then(res=>{
+            if(res){
+              console.log(res)
+              if(res.relations){
+                res.relations.forEach(item=>{
+                  item.srcTableId=item.srcTable
+                  item.tgtTableId=item.tgtTable
+                })
+                res.tables.forEach(item=>{
+                  item.isFold=true
+                  item.id=item.name
+                  item.columns.forEach(col=>{
+                    col.title=col.name
+                  })
+                })
+                res.tables.forEach(table => {
+                  table.operators = getOps({
+                    isFold: !!table.isFold,
+                    onAction:this.onAction,
+                    tableId: table.id
+                  })
+                })
+                this.kinShipVisible = true
+                setTimeout(()=>{
+                  this.tables=res.tables
+                  this.relations=res.relations
+                },1000)
+              }else{
+                this.errorVisible=true
+                this.errorMessage=res
+                console.log(res)
+              }
+            }else{
+              this.$message.error('无法解析血缘')
+            }
+            this.kinshipLoading=false
+          }).catch(()=>{
+            this.kinshipLoading=false
+          })
+          // this.versionId
+        }else{
+          this.kinshipLoading=false
+        }
+      })
+    },
+    //关闭血缘
+    kinShipCancel(){
+      this.tables=[]
+      this.relations=[]
+    },
+    lineageLoad(canvas){
+      this.cvsRef.current = canvas
+    },
+    reload(){
+      if (!this.cvsRef.current) {
+        return
+      }
+      this.cvsRef.current.relayout()
+      this.cvsRef.current.focusCenterWithAnimate()
+    },
+    onClose() {
+      this.kinShipVisible = false
+    },
+    onAction (action, tableId) {
+      this.tables.forEach(table => {
+        if(table.id !== tableId) {
+          return
+        }
+        table.isFold = !table.isFold
+      })
+      this.tables = [...this.tables]
     },
   }
 
