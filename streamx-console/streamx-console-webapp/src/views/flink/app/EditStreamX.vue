@@ -1480,7 +1480,8 @@
         style="height:100%"
         :tables="tables"
         :relations="relations"
-        onEachFrame={() => { }}></lineage-table>
+        @onLoaded="lineageLoad"
+        @onEachFrame="reload"></lineage-table>
     </a-modal>
     <a-modal
       v-model="errorVisible"
@@ -1560,6 +1561,7 @@ export default {
       relations: [],
       tables:[],
       cvsRef:{},
+      reloadStatus:true,
       strategy: 1,
       app: null,
       compareDisabled: true,
