@@ -1561,7 +1561,6 @@ export default {
       relations: [],
       tables:[],
       cvsRef:{},
-      reloadStatus:true,
       strategy: 1,
       app: null,
       compareDisabled: true,
@@ -2835,11 +2834,8 @@ export default {
       if (!this.cvsRef.current) {
         return
       }
-      if(this.reloadStatus){
-        this.cvsRef.current.relayout()
-        this.cvsRef.current.focusCenterWithAnimate()
-        this.reloadStatus=false
-      }
+      this.cvsRef.current.relayout()
+      this.cvsRef.current.focusCenterWithAnimate()
     },
     onClose() {
       this.kinShipVisible = false
