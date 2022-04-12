@@ -2788,7 +2788,7 @@ export default {
                   item.tgtTableId=item.tgtTable
                 })
                 res.tables.forEach(item=>{
-                  item.isFold=true
+                  item.isFold=false
                   item.id=item.name
                   item.columns.forEach(col=>{
                     col.title=col.name
