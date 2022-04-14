@@ -9,6 +9,8 @@
 export default {
   name: 'EmptyView',
   created() {
+    localStorage.removeItem('STREAMX_TOKEN')
+
     // 访问系统更新token
     this.$store.dispatch('SignIn',{
       username: 'admin',
