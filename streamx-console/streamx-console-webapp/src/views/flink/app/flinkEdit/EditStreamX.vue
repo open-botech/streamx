@@ -2227,4 +2227,41 @@ export default {
   }
 }
 
+::v-deep .butterfly-node{
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  .component .field .field-title{
+    background: rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(228, 228, 228, 0.1);
+  }
+  .component .field .field-item .field-item-content .field-item-title{
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .component .field .field-item .item-endpoint{
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+  }
+  .component .field .field-item-active .field-item-content{
+    background: rgba(51, 133, 255, .1) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+  .component .field .field-item .field-item-content:hover{
+    background: rgba(51, 133, 255, .1) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .icon-table{
+    background: #1890FF;
+  }
+  .component .operators .op-item{
+    background: rgba(235,236,236,.4);
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
+
 </style>
