@@ -12,7 +12,7 @@
             <outputDirectory>lib</outputDirectory>
             <excludes>
                 <exclude>com.streamxhub.streamx:streamx-jvm-profiler</exclude>
-                <exclude>com.streamxhub.streamx:streamx-flink-sqlclient</exclude>
+                <exclude>com.streamxhub.streamx:streamx-flink-sqlclient_${scala.binary.version}</exclude>
                 <exclude>javax.servlet:servlet-api</exclude>
             </excludes>
         </dependencySet>
@@ -20,7 +20,12 @@
             <outputDirectory>plugins</outputDirectory>
             <includes>
                 <include>com.streamxhub.streamx:streamx-jvm-profiler</include>
-                <include>com.streamxhub.streamx:streamx-flink-sqlclient</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>client</outputDirectory>
+            <includes>
+                <include>com.streamxhub.streamx:streamx-flink-sqlclient_${scala.binary.version}</include>
             </includes>
         </dependencySet>
     </dependencySets>
@@ -29,6 +34,16 @@
         <fileSet>
             <directory>src/assembly/bin</directory>
             <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../../.mvn</directory>
+            <outputDirectory>bin/.mvn</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/lib</directory>
+            <outputDirectory>lib</outputDirectory>
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
@@ -47,8 +62,18 @@
             <fileMode>0777</fileMode>
         </fileSet>
         <fileSet>
+            <directory>src/assembly/client</directory>
+            <outputDirectory>client</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>src/assembly/plugins</directory>
             <outputDirectory>plugins</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>src/assembly/script</directory>
+            <outputDirectory>script</outputDirectory>
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
@@ -56,9 +81,10 @@
             <outputDirectory>conf</outputDirectory>
             <fileMode>0755</fileMode>
             <includes>
-                <include>*.*</include>
+                <include>*.yml</include>
+                <include>*.properties</include>
+                <include>logback*.xml</include>
             </includes>
         </fileSet>
     </fileSets>
-
 </assembly>

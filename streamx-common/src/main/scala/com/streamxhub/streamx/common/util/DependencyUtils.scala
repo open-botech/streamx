@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.streamxhub.streamx.common.util
@@ -91,19 +89,19 @@ object DependencyUtils {
       val splits = p.replace("/", ":").split(":")
       require(
         splits.length == 3,
-        s"Provided Maven Coordinates must be in the form 'groupId:artifactId:version'. The coordinate provided is: $p"
+        s"[StreamX] DependencyUtils.extractMavenCoordinates: Provided Maven Coordinates must be in the form 'groupId:artifactId:version'. The coordinate provided is: $p"
       )
       require(
         splits(0) != null && splits(0).trim.nonEmpty,
-        s"The groupId cannot be null or be whitespace. The groupId provided is: ${splits(0)}"
+        s"[StreamX] DependencyUtils.extractMavenCoordinates: The groupId cannot be null or be whitespace. The groupId provided is: ${splits(0)}"
       )
       require(
         splits(1) != null && splits(1).trim.nonEmpty,
-        s"The artifactId cannot be null or be whitespace. The artifactId provided is: ${splits(1)}"
+        s"[StreamX] DependencyUtils.extractMavenCoordinates: The artifactId cannot be null or be whitespace. The artifactId provided is: ${splits(1)}"
       )
       require(
         splits(2) != null && splits(2).trim.nonEmpty,
-        s"The version cannot be null or be whitespace. The version provided is: ${splits(2)}"
+        s"[StreamX] DependencyUtils.extractMavenCoordinates: The version cannot be null or be whitespace. The version provided is: ${splits(2)}"
       )
       MavenCoordinate(splits(0), splits(1), splits(2))
     }
@@ -192,9 +190,7 @@ object DependencyUtils {
       val ri = ModuleRevisionId.newInstance(mvn.groupId, mvn.artifactId, mvn.version)
       val dd = new DefaultDependencyDescriptor(ri, false, false)
       dd.addDependencyConfiguration(ivyConfName, ivyConfName + "(runtime)")
-      // scalastyle:off println
       outCallback.accept(s"${dd.getDependencyId} added as a dependency")
-      // scalastyle:on println
       md.addDependency(dd)
     }
   }
@@ -243,14 +239,14 @@ object DependencyUtils {
                        outCallback: Consumer[String]
                      ): IvySettings = {
     val file = new File(settingsFile)
-    require(file.exists(), s"Ivy settings file $file does not exist")
-    require(file.isFile, s"Ivy settings file $file is not a normal file")
+    require(file.exists(), s"[StreamX] DependencyUtils.loadIvySettings: Ivy settings file $file does not exist")
+    require(file.isFile, s"[StreamX] DependencyUtils.loadIvySettings: Ivy settings file $file is not a normal file")
     val ivySettings: IvySettings = new IvySettings
     try {
       ivySettings.load(file)
     } catch {
       case e@(_: IOException | _: ParseException) =>
-        throw new RuntimeException(s"Failed when loading Ivy settings from $settingsFile", e)
+        throw new RuntimeException(s"DependencyUtils.loadIvySettings: Failed when loading Ivy settings from $settingsFile", e)
     }
     processIvyPathArg(ivySettings, ivyPath)
     processRemoteRepoArg(ivySettings, remoteRepos, outCallback)
@@ -280,9 +276,7 @@ object DependencyUtils {
         brr.setRoot(repo)
         brr.setName(s"repo-${i + 1}")
         cr.add(brr)
-        // scalastyle:off println
         outCallback.accept(s"$repo added as a remote repository with the name: ${brr.getName}")
-        // scalastyle:on println
       }
       ivySettings.addResolver(cr)
       ivySettings.setDefaultResolver(cr.getName)
@@ -335,10 +329,8 @@ object DependencyUtils {
         // To prevent ivy from logging to system out
         val artifacts = extractMavenCoordinates(coordinates)
         val packagesDirectory: File = new File(ivySettings.getDefaultIvyUserDir, "jars")
-        // scalastyle:off println
         outCallback.accept(s"Ivy Default Cache set to: ${ivySettings.getDefaultCache.getAbsolutePath}")
         outCallback.accept(s"The jars for the packages stored in: $packagesDirectory")
-        // scalastyle:on println
         val ivy = Ivy.newInstance(ivySettings)
         // Set resolve options to download transitive dependencies as well
         val resolveOptions = new ResolveOptions

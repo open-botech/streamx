@@ -1,28 +1,26 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.streamxhub.streamx.common.util
 
-import redis.clients.jedis.exceptions.JedisConnectionException
 import redis.clients.jedis._
+import redis.clients.jedis.exceptions.JedisConnectionException
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.meta.getter
@@ -48,7 +46,7 @@ object RedisClient extends Logger {
    */
   @tailrec
   def connect(endpoints: Array[RedisEndpoint]): Jedis = {
-    require(endpoints.length > 0, "The RedisEndpoint array is empty!!!")
+    require(endpoints.length > 0, "[StreamX] The RedisEndpoint array is empty!!!")
     val index = Random.nextInt().abs % endpoints.length
     try {
       connect(endpoints(index))
@@ -115,7 +113,7 @@ object RedisClient extends Logger {
   }
 
   def connectCluster(res: RedisEndpoint*): JedisCluster = {
-    require(res.nonEmpty, "The RedisEndpoint array is empty!!!")
+    require(res.nonEmpty, "[StreamX] The RedisEndpoint array is empty!!!")
     val head = res.head
     val cluster = clusters.getOrElseUpdate(head, {
       val hostPorts = res.map(r => new HostAndPort(r.host, r.port)).toSet

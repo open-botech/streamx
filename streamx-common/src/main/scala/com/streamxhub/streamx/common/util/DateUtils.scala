@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.common.util
 
@@ -34,10 +32,16 @@ object DateUtils {
 
   val format_yyyyMMdd = "yyyyMMdd"
 
+  val fullCompact = "yyyyMMddHHmmss"
+
   def parse(date: String, format: String = fullFormat, timeZone: TimeZone = TimeZone.getDefault): Date = {
     val df: SimpleDateFormat = new SimpleDateFormat(format)
     df.setTimeZone(timeZone)
     df.parse(date)
+  }
+
+  def stringToDate(date: String): Date = {
+    parse(date)
   }
 
   def milliSecond2Date(time: Long): Date = new Date(time)
@@ -85,7 +89,7 @@ object DateUtils {
 
 
   //日期加减...
-  def +-(i: Int, date: Date = new Date, timeZone: TimeZone = TimeZone.getDefault): Date = {
+  def addAndSubtract(i: Int, date: Date = new Date, timeZone: TimeZone = TimeZone.getDefault): Date = {
     val cal = Calendar.getInstance
     cal.setTimeZone(timeZone)
     cal.setTime(date)
@@ -188,19 +192,15 @@ object DateUtils {
     localDateTime.format(dateTimeFormatter)
   }
 
-  private def getDateFormat(date: Date, dateFormatType: String) = {
-    val simformat = new SimpleDateFormat(dateFormatType)
-    simformat.format(date)
+  private def getDateFormat(date: Date, dateFormatType: String): String = {
+    val format = new SimpleDateFormat(dateFormatType)
+    format.format(date)
   }
 
   @throws[ParseException] def formatCSTTime(date: String, format: String): String = {
     val sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US)
     val d = sdf.parse(date)
     DateUtils.getDateFormat(d, format)
-  }
-
-  def main(args: Array[String]): Unit = {
-    println(DateUtils.+-(-1))
   }
 
 }

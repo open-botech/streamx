@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 export default {
   Passport: {
     SIGNIN: '/passport/signin',
@@ -28,7 +29,10 @@ export default {
     GITCHECK: '/flink/project/gitcheck',
     EXISTS: '/flink/project/exists',
     CREATE: '/flink/project/create',
+    GET: '/flink/project/get',
+    UPDATE: '/flink/project/update',
     BUILD: '/flink/project/build',
+    BUILDLOG: '/flink/project/buildlog',
     CLOSEBUILD: '/flink/project/closebuild',
     LIST: '/flink/project/list',
     FILELIST: '/flink/project/filelist',
@@ -66,7 +70,7 @@ export default {
     DASHBOARD: '/flink/app/dashboard',
     MAIN: '/flink/app/main',
     NAME: '/flink/app/name',
-    EXISTS: '/flink/app/exists',
+    CHECKNAME: '/flink/app/checkName',
     CANCEL: '/flink/app/cancel',
     DELETE: '/flink/app/delete',
     DELETEBAK: '/flink/app/deletebak',
@@ -76,24 +80,58 @@ export default {
     BACKUPS: '/flink/app/backups',
     ROLLBACK: '/flink/app/rollback',
     REVOKE: '/flink/app/revoke',
-    STARTLOG: '/flink/app/startlog',
-    CHECKJAR: '/flink/app/checkjar'
+    OPTIONLOG: '/flink/app/optionlog',
+    DOWNLOG: '/flink/app/downlog',
+    CHECKJAR: '/flink/app/checkjar',
+    VERIFYSCHEMA: '/flink/app/verifySchema'
   },
   Config: {
     GET: '/flink/conf/get',
     TEMPLATE: '/flink/conf/template',
     LIST: '/flink/conf/list',
     HISTORY: '/flink/conf/history',
-    DELETE: '/flink/conf/delete'
+    DELETE: '/flink/conf/delete',
+    SYS_HADOOP_CONF: '/flink/conf/sysHadoopConf'
   },
-  FlinkVersion: {
-    LIST: '/flink/version/list',
-    CREATE:  '/flink/version/create',
-    EXISTS: '/flink/version/exists',
-    GET: '/flink/version/get',
-    SYNC: '/flink/version/sync',
-    UPDATE: '/flink/version/update',
-    DEFAULT: '/flink/version/default',
+  FlinkEnv: {
+    LIST: '/flink/env/list',
+    CREATE:  '/flink/env/create',
+    EXISTS: '/flink/env/exists',
+    GET: '/flink/env/get',
+    SYNC: '/flink/env/sync',
+    UPDATE: '/flink/env/update',
+    DEFAULT: '/flink/env/default',
+  },
+  FlinkCluster: {
+    LIST: '/flink/cluster/list',
+    ACTIVEURL: '/flink/cluster/activeUrl',
+    CREATE:  '/flink/cluster/create',
+    CHECK: '/flink/cluster/check',
+    GET: '/flink/cluster/get',
+    UPDATE: '/flink/cluster/update',
+    START: '/flink/cluster/start',
+    SHUTDOWN: '/flink/cluster/shutdown',
+    DELETE: '/flink/cluster/delete'
+  },
+  AppBuild: {
+    BUILD: '/flink/pipe/build',
+    DETAIL: '/flink/pipe/detail',
+  },
+  FlinkHistory: {
+    UPLOAD_JARS: '/flink/history/uploadJars',
+    K8S_NAMESPACES: '/flink/history/k8sNamespaces',
+    SESSION_CLUSTER_IDS: '/flink/history/sessionClusterIds',
+    FLINK_BASE_IMAGES: '/flink/history/flinkBaseImages',
+    FLINK_POD_TEMPLATES: '/flink/history/flinkPodTemplates',
+    FLINK_JM_POD_TEMPLATES: '/flink/history/flinkJmPodTemplates',
+    FLINK_TM_POD_TEMPLATES: '/flink/history/flinkTmPodTemplates'
+  },
+  FlinkPodTemplate: {
+    SYS_HOSTS: '/flink/podtmpl/sysHosts',
+    INIT: '/flink/podtmpl/init',
+    COMP_HOST_ALIAS: '/flink/podtmpl/compHostAlias',
+    EXTRACT_HOST_ALIAS: '/flink/podtmpl/extractHostAlias',
+    PREVIEW_HOST_ALIAS: '/flink/podtmpl/previewHostAlias',
   },
   FlinkSQL: {
     VERIFY: '/flink/sql/verify',
@@ -104,8 +142,7 @@ export default {
     GET: '/flink/setting/get',
     WEBURL: '/flink/setting/weburl',
     ALL: '/flink/setting/all',
-    CHECK: '/flink/setting/check',
-    GETFLINK: '/flink/setting/getflink',
+    CHECK_HADOOP: '/flink/setting/checkHadoop',
     SYNC: '/flink/setting/sync',
     UPDATE: '/flink/setting/update'
   },
@@ -116,10 +153,19 @@ export default {
     PASSWORD: '/user/password',
     RESET: '/user/password/reset',
     GET: '/user/get',
+    GET_NOTOKEN_USER: '/user/getNoTokenUser',
     POST: '/user/post',
     DELETE: '/user/delete',
     CHECK_NAME: '/user/check/name',
     CHECK_PASSWORD: '/user/check/password'
+  },
+  Token: {
+    LIST: '/token/list',
+    DELETE: '/token/delete',
+    CREATE: '/token/create',
+    CHECK: '/token/check',
+    CURL: '/token/curl',
+    TOGGLE: '/token/toggle'
   },
   Role: {
     POST: '/role/post',

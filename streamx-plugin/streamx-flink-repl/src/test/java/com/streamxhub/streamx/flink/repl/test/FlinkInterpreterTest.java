@@ -1,42 +1,45 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.streamxhub.streamx.flink.repl.test;
 
 import com.streamxhub.streamx.flink.repl.interpreter.FlinkInterpreter;
 import com.streamxhub.streamx.flink.repl.interpreter.InterpreterOutput;
 import com.streamxhub.streamx.flink.repl.interpreter.InterpreterResult;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-
 public class FlinkInterpreterTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlinkInterpreterTest.class);
 
     private FlinkInterpreter interpreter;
 
     private String flinkHome = System.getenv("FLINK_HOME");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Properties p = new Properties();
         p.setProperty("repl.out", "true");
@@ -46,7 +49,7 @@ public class FlinkInterpreterTest {
         interpreter = new FlinkInterpreter(p);
     }
 
-    @After
+    @AfterEach
     public void testDown() throws Exception {
         if (interpreter != null) {
             interpreter.close();
@@ -73,14 +76,12 @@ public class FlinkInterpreterTest {
                     "\n" +
                     "env.execute()\n", out);
 
-            System.out.println(out);
-
-            System.out.println(result.code());
+            LOGGER.info("InterpreterOutput: {}", out);
+            LOGGER.info("ResultCode: {}", result.code());
             interpreter.close();
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
     }
 
     @Test
@@ -118,13 +119,12 @@ public class FlinkInterpreterTest {
 
             });
             InterpreterResult result = interpreter.interpret(code, out);
-            System.out.println(out);
-            System.out.println(result.code());
+            LOGGER.info("InterpreterOutput: {}", out);
+            LOGGER.info("ResultCode: {}", result.code());
             interpreter.close();
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
-
 
 }

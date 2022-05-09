@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.flink.core
 
@@ -104,6 +102,7 @@ object FlinkSqlValidator extends Logger {
             ALTER_DATABASE | ALTER_TABLE | ALTER_FUNCTION |
             USE | USE_CATALOG |
             SELECT | INSERT_INTO | INSERT_OVERWRITE |
+            BEGIN_STATEMENT_SET | END_STATEMENT_SET |
             EXPLAIN | DESC | DESCRIBE =>
             try {
               command match {
@@ -112,7 +111,7 @@ object FlinkSqlValidator extends Logger {
               }
             } catch {
               case e: Throwable =>
-                logError(s"verifySql error:${ExceptionUtils.stringifyException(e)}")
+                logError(s"verify error:${ExceptionUtils.stringifyException(e)}")
                 return SqlError(
                   SqlErrorType.SYNTAX_ERROR,
                   e.getLocalizedMessage,
@@ -128,14 +127,8 @@ object FlinkSqlValidator extends Logger {
       null
     } catch {
       case exception: Exception =>
-        val separator = "\001"
-        val error = exception.getLocalizedMessage
-        val array = error.split(separator)
-        SqlError(
-          SqlErrorType.of(array.head.toInt),
-          if (array(1) == "null") null else array(1),
-          array.last
-        )
+        logError(s"verify error:${ExceptionUtils.stringifyException(exception)}")
+        SqlError.fromString(exception.getMessage)
     }
   }
 

@@ -147,7 +147,7 @@ import UserEdit from './UserEdit'
 import RangeDate from '@/components/DateTime/RangeDate'
 import SvgIcon from '@/components/SvgIcon'
 
-import { list, remove, reset as resetPassword } from '@/api/user'
+import { list, deleteUser, reset as resetPassword } from '@/api/user'
 import storage from '@/utils/storage'
 import {USER_NAME} from '@/store/mutation-types'
 
@@ -246,7 +246,7 @@ export default {
     },
     handleUserAddSuccess () {
       this.userAdd.visible = false
-      this.$message.success('新增用户成功，初始密码为streamx123')
+      this.$message.success('新增用户成功')
       this.search()
     },
     handleEdit (record) {
@@ -271,7 +271,7 @@ export default {
       }
     },
     handleDelete (record) {
-      remove({
+      deleteUser({
         userId: record.userId
       }).then((resp) => {
         if (resp.status === 'success') {

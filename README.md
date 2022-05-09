@@ -2,10 +2,10 @@
     <br/>
     <h1>
         <a href="http://www.streamxhub.com" target="_blank" rel="noopener noreferrer">
-        <img width="500" src="http://assets.streamxhub.com/streamx-log2.png" alt="StreamX logo">
+        <img width="600" src="https://user-images.githubusercontent.com/13284744/166133644-ed3cc4f5-aae5-45bc-bfbe-29c540612446.png" alt="StreamX logo">
         </a>
     </h1>
-    <strong>Make Flink|Spark easier!!!</strong>
+    <strong style="font-size: 1.5rem">Make stream processing easier!!!</strong>
 </div>
 
 <br/>
@@ -16,7 +16,6 @@
   <img src="https://img.shields.io/github/v/release/streamxhub/streamx.svg">
   <img src="https://img.shields.io/github/stars/streamxhub/streamx">
   <img src="https://img.shields.io/github/forks/streamxhub/streamx">
-  <img src="https://img.shields.io/github/downloads/streamxhub/streamx/total">
   <img src="https://img.shields.io/github/languages/count/streamxhub/streamx">
 </p>
 
@@ -24,29 +23,26 @@
 
 **[Official Website](http://www.streamxhub.com)** |
 **[Change Log](#)** |
-**[Document](http://www.streamxhub.com/zh/doc/)**
+**[Document](https://www.streamxhub.com/docs/intro)**
 
 </div>
 
-English | [中文](README_CN.md)
+#### English | [中文](README_CN.md)
 
 # StreamX
 
-Make Flink|Spark easier
+Make stream processing easier
 
-> A magical framework that makes Flink development easier
+> A magical framework that make stream processing easier!
 
 ## 🚀 Introduction
 
-The original intention of `StreamX` is to make the development of `Flink` easier. `StreamX` focuses on the management of development phases
+The original intention of `StreamX` is to make stream processing easier. `StreamX` focuses on the management of development phases
 and tasks. Our ultimate goal is to build a one-stop big data solution integrating stream processing, batch processing, data warehouse and
 data laker.
 
-[![StreamX video](http://assets.streamxhub.com/streamx_player.png)](http://assets.streamxhub.com/streamx-video.mp4)
+[![StreamX video](https://user-images.githubusercontent.com/13284744/166101616-50a44d38-3ffb-4296-8a77-92f76a4c21b5.png)](http://assets.streamxhub.com/streamx-video.mp4)
 
-![](http://assets.streamxhub.com/streamx-main.png?12345)
-
-![](http://assets.streamxhub.com/streamx-sql.png?12345)
 
 ## 🎉 Features
 
@@ -54,24 +50,36 @@ data laker.
 * Out-of-the-box connectors
 * Support maven compilation
 * Configuration
-* Support `Applicaion` and `Yarn-Per-Job` mode
+* Multi version flink support(1.12.x,1.13.x,1.14.x, 1.15.x)
+* Scala 2.11 / 2.12 support
+* restapi support.
+* All Flink deployment mode support(`Remote`/`K8s-Native-Application`/`K8s-Native-Session`/`YARN-Application`/`YARN-Per-Job`/`YARN-Session`)
 * `start`, `stop`, `savepoint`, resume from `savepoint`
+* Various companies and organizations use `StreamX` for production and commercial products.
 * Flame graph
 * Notebook
 * Project configuration and dependency version management
 * Task backup and rollback
 * Manage dependencies
 * UDF
+* Flink SQL Connector
 * Flink SQL WebIDE
 * Catalog、Hive
 * Full support from task `development` to `deployment`
 * ...
 
+![](https://user-images.githubusercontent.com/13284744/142746863-856ef1cd-fa0e-4010-b359-c16ca2ad2fb7.png)
+
+
+![](https://user-images.githubusercontent.com/13284744/142746864-d807d728-423f-41c3-b90d-45ce2c21936b.png)
+
+
+
 ## 🏳‍🌈 Components
 
 `Streamx` consists of three parts,`streamx-core`,`streamx-pump` and `streamx-console`
 
-![](http://assets.streamxhub.com/streamx1.png)
+![](https://user-images.githubusercontent.com/13284744/142746859-f6a4dedc-ec42-4ed5-933b-c27d559b9988.png)
 
 ### 1️⃣ streamx-core
 
@@ -110,49 +118,49 @@ Our ultimate goal is to build a one-stop big data solution integrating stream pr
 * ...
 
 Thanks to the above excellent open source projects and many outstanding open source projects that are not mentioned, for giving the greatest
-respect, special thanks to [Apache Zeppelin](http://zeppelin.apache.org)
-, [IntelliJ IDEA](https://www.jetbrains.com/idea/), Thanks to the [fire-spark](https://github.com/GuoNingNing/fire-spark) project for the
-early inspiration and help.
+respect,Thanks to [Apache Flink](http://flink.apache.org) for creating a great project!  Thanks to the [Apache Zeppelin](http://zeppelin.apache.org) project for the early inspiration.
 
 ### 🚀 Quick Start
 
-```
-git clone https://github.com/streamxhub/streamx.git
-cd Streamx
-mvn clean install -DskipTests -Denv=prod
-```
+click [Document](http://www.streamxhub.com/zh-CN/docs/intro/) for more information
 
-click [Document](http://www.streamxhub.com/zh/doc/) for more information
 
-## 👻 Why not...❓
+## 💋 our users
 
-### Apache Zeppelin
 
-[Apache Zeppelin](https://zeppelin.apache.org) is a Web-based notebook that enables data-driven, interactive data analytics and
-collaborative documents with SQL, Java, Scala and more.
+Various companies and organizations use StreamX for research, production and commercial products. Are you using this project ? [you can add your company](https://github.com/streamxhub/streamx/issues/163)
 
-At the same time we also need a one-stop tool that can cover `development`, `test`, `package`, `deploy`, and `start`.
-`streamx-console` solves these pain points very well, positioning is a one-stop stream processing platform, and has developed more exciting
-features (such as `Flink SQL WebIDE`, `dependency isolation`, `task rollback `, `flame diagram`
-etc.)
+![image](https://user-images.githubusercontent.com/13284744/160220085-11f1e011-e7a0-421f-9294-c14213c0bc22.png)
 
-### FlinkX
 
-[FlinkX](http://github.com/DTStack/flinkx) is a distributed offline and real-time data synchronization framework based on flink widely used
-in DTStack, which realizes efficient data migration between multiple heterogeneous data sources.
 
-`StreamX` focuses on the management of development phases and tasks. The `streamx-pump` module is also under planning, dedicated to solving
-data source migration, and will eventually be integrated into the `streamx-console`.
+## 🏆 Our honor
 
-## 🍼 Feedback
+We have received some precious honors, which belong to everyone who contributes to StreamX, Thank you !
 
-You can quickly submit an issue. Before submitting, please check the problem and try to use the following contact information! Maybe your
-question has already been asked by others, or it has already been answered. Thank you!
 
-You can contact us or ask questions via:
+![](https://user-images.githubusercontent.com/13284744/142746797-85ebf7b4-4105-4b5b-a023-0689c7fd1d2d.png)
 
-- [New an issue](https://github.com/streamxhub/streamx/issues/new)
-- [Join us](#-Join-us)
+![](https://user-images.githubusercontent.com/13284744/163530071-a5b6f334-9af5-439c-96c9-2bb9b4eec6a6.jpg)
+
+
+## 🤝 Contribution
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/streamxhub/streamx/pulls)
+
+You can submit any ideas as [pull requests](https://github.com/streamxhub/streamx/pulls) or as [GitHub issues](https://github.com/streamxhub/streamx/issues/new/choose).
+
+> If you're new to posting issues, we ask that you read [*How To Ask Questions The Smart Way*](http://www.catb.org/~esr/faqs/smart-questions.html) (**This guide does not provide actual support services for this project!**), [How to Report Bugs Effectively](http://www.chiark.greenend.org.uk/~sgtatham/bugs.html) prior to posting. Well written bug reports help us help you!
+
+Thank you to all the people who already contributed to StreamX!
+
+<a href="https://github.com/streamxhub/streamx/graphs/contributors"><img src="https://opencollective.com/streamx/contributors.svg?width=890" /></a>
+
+
+## ⏰ Contributor Over Time
+
+[![Contributor Over Time](https://contributor-overtime-api.git-contributor.com/contributors-svg?chart=contributorOverTime&repo=streamxhub/streamx)](https://git-contributor.com?chart=contributorOverTime&repo=streamxhub/streamx)
+
 
 ## 💰 Donation
 
@@ -162,9 +170,9 @@ If you like this framework, and appreciate the work done for it to exist, you ca
 
 | WeChat Pay | Alipay |
 |:----------|:----------|
-| <img src="http://assets.streamxhub.com/1617938114478.jpg?12345" alt="Buy Me A Coffee" width="150"> | <img src="http://assets.streamxhub.com/1617938216431.jpg?12345" alt="Buy Me A Coffee" width="150"> |
+| <img src="https://user-images.githubusercontent.com/13284744/142746857-35e7f823-7160-4505-be3f-e748a2d0a233.png" alt="Buy Me A Coffee" width="150"> | <img src="https://user-images.githubusercontent.com/13284744/142746860-e14a8183-d973-44ca-83bf-e5f9d4da1510.png" alt="Buy Me A Coffee" width="150"> |
 
-## 🏆 My sponsors (Coffee Suppliers)
+## 🏆 Our sponsors (Coffee Suppliers)
 
 ### 💜 Monthly Supplier
 
@@ -174,6 +182,7 @@ Welcome individuals and enterprises to sponsor, your support will help us better
 
 <p>
   <a href="https://github.com/wolfboys" alt="benjobs"><img src="https://avatars.githubusercontent.com/u/13284744?v=4" height="50" width="50"></a>
+  <a href="https://github.com/Kitming25" alt="Kitming25"><img src="https://avatars.githubusercontent.com/u/11773106?v=4" height="50" width="50"></a>
   <a href="https://github.com/Narcasserun" alt="Narcasserun"><img src="https://avatars.githubusercontent.com/u/39329477?v=4" height="50" width="50"></a>
 </p>
 
@@ -181,6 +190,7 @@ Welcome individuals and enterprises to sponsor, your support will help us better
 
 <p>
     <a href="https://github.com/lianxiaobao" alt="lianxiaobao"><img src="https://avatars.githubusercontent.com/u/36557317?v=4" height="50" width="50"></a>
+    <a href="https://github.com/su94998" alt="su94998"><img src="https://avatars.githubusercontent.com/u/33316193?v=4" height="50" width="50"></a>
 </p>
 
 ### 🥈 Silver Supplier
@@ -190,9 +200,17 @@ Welcome individuals and enterprises to sponsor, your support will help us better
     <a href="https://github.com/zhaizhirui" alt="zhaizhirui"><img src="https://avatars.githubusercontent.com/u/39609947?v=4" height="50" width="50"></a>
 </p>
 
+
+Thanks to [JetBrains](https://www.jetbrains.com/?from=streamx) for supporting us free open source licenses.
+
+[![JetBrains](https://img.alicdn.com/tfs/TB1sSomo.z1gK0jSZLeXXb9kVXa-120-130.svg)](https://www.jetbrains.com/?from=streamx)
+
+
 ### 🏅 Backers
 
 Thank you to all our backers!
+
+---
 
 ## 💬 Join us
 
@@ -206,8 +224,7 @@ Thank you to all our backers!
 </div>
 
 <div align="center">
-    <img src="http://assets.streamxhub.com/benjobs.jpeg?1234" alt="Join the Group" width="200"><br>
-    <span>join us (verification information: "StreamX")</span>
+    <img src="https://user-images.githubusercontent.com/13284744/152627523-de455a4d-97c7-46cd-815f-3328a3fe3663.png" alt="Join the Group" height="300px"><br>
 </div>
 
 

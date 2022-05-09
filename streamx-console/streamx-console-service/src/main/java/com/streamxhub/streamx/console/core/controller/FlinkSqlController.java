@@ -1,19 +1,22 @@
 /*
- *  Copyright (c) 2019 The StreamX Project
+ * Copyright (c) 2019 The StreamX Project
  *
- * <p>Licensed to the Apache Software Foundation (ASF) under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * <p>http://www.apache.org/licenses/LICENSE-2.0
+ *    https://www.apache.org/licenses/LICENSE-2.0
  *
- * <p>Unless required by applicable law or agreed to in writing, software distributed under the
- * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing permissions and
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.streamxhub.streamx.console.core.controller;
 
 import com.streamxhub.streamx.common.enums.SqlErrorType;
@@ -22,7 +25,10 @@ import com.streamxhub.streamx.console.base.exception.ServiceException;
 import com.streamxhub.streamx.console.core.entity.Application;
 import com.streamxhub.streamx.console.core.entity.FlinkSql;
 import com.streamxhub.streamx.console.core.service.FlinkSqlService;
+import com.streamxhub.streamx.console.core.service.SqlCompleteService;
 import com.streamxhub.streamx.flink.core.SqlError;
+
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -30,12 +36,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
+import java.util.List;
 
 /**
  * @author benjobs
  */
+@Api(tags = "[flink sql]相关操作", consumes = "Content-Type=application/x-www-form-urlencoded")
 @Slf4j
 @Validated
 @RestController
@@ -44,6 +52,9 @@ public class FlinkSqlController {
 
     @Autowired
     private FlinkSqlService flinkSqlService;
+
+    @Autowired
+    private SqlCompleteService sqlComplete;
 
     @PostMapping("verify")
     public RestResponse verify(String sql, Long versionId) {
@@ -57,7 +68,7 @@ public class FlinkSqlController {
             RestResponse response = RestResponse.create()
                 .data(false)
                 .message(sqlError.exception())
-                .put("type", sqlError.errorType().errorType)
+                .put("type", sqlError.errorType().getValue())
                 .put("start", start)
                 .put("end", end);
             //语法异常
@@ -100,6 +111,11 @@ public class FlinkSqlController {
     public RestResponse sqlhistory(Application application) {
         List<FlinkSql> sqlList = flinkSqlService.history(application);
         return RestResponse.create().data(sqlList);
+    }
+
+    @PostMapping("sqlComplete")
+    public RestResponse getSqlComplete(@NotNull(message = "{required}") String sql) {
+        return RestResponse.create().put("word", sqlComplete.getComplete(sql));
     }
 
 }

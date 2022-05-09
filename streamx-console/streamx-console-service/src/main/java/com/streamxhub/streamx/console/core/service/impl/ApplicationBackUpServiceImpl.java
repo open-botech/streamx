@@ -1,31 +1,24 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.streamxhub.streamx.console.core.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.streamxhub.streamx.common.fs.FsOperator;
 import com.streamxhub.streamx.common.util.ThreadUtils;
 import com.streamxhub.streamx.console.base.domain.Constant;
@@ -37,17 +30,27 @@ import com.streamxhub.streamx.console.core.entity.Application;
 import com.streamxhub.streamx.console.core.entity.ApplicationBackUp;
 import com.streamxhub.streamx.console.core.entity.ApplicationConfig;
 import com.streamxhub.streamx.console.core.entity.FlinkSql;
-import com.streamxhub.streamx.console.core.enums.DeployState;
 import com.streamxhub.streamx.console.core.enums.EffectiveType;
-import com.streamxhub.streamx.console.core.service.*;
+import com.streamxhub.streamx.console.core.enums.LaunchState;
+import com.streamxhub.streamx.console.core.service.ApplicationBackUpService;
+import com.streamxhub.streamx.console.core.service.ApplicationConfigService;
+import com.streamxhub.streamx.console.core.service.ApplicationService;
+import com.streamxhub.streamx.console.core.service.EffectiveService;
+import com.streamxhub.streamx.console.core.service.FlinkSqlService;
 import com.streamxhub.streamx.console.core.task.FlinkTrackingTask;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -85,7 +88,6 @@ public class ApplicationBackUpServiceImpl
         new ThreadPoolExecutor.AbortPolicy()
     );
 
-
     @Override
     public IPage<ApplicationBackUp> page(ApplicationBackUp backUp, RestRequest request) {
         Page<ApplicationBackUp> page = new Page<>();
@@ -113,7 +115,12 @@ public class ApplicationBackUpServiceImpl
                     // 1) 在回滚时判断当前生效的项目是否需要备份.如需要则先执行备份...
                     if (backParam.isBackup()) {
                         application.setBackUpDescription(backParam.getDescription());
-                        backup(application);
+                        if (application.isFlinkSqlJob()) {
+                            FlinkSql flinkSql = flinkSqlService.getEffective(application.getId(), false);
+                            backup(application, flinkSql);
+                        } else {
+                            backup(application, null);
+                        }
                     }
 
                     //2) 恢复 配置和SQL
@@ -138,11 +145,11 @@ public class ApplicationBackUpServiceImpl
                     }
 
                     // 4) 删除当前的有效项目工程文件(注意:该操作如果整个回滚失败,则要恢复...)
-                    fsOperator.delete(application.getRemoteAppHome().getAbsolutePath());
+                    fsOperator.delete(application.getAppHome());
 
                     try {
                         // 5)将备份的文件copy到有效项目目录下.
-                        fsOperator.copyDir(backParam.getPath(), application.getRemoteAppHome().getAbsolutePath());
+                        fsOperator.copyDir(backParam.getPath(), application.getAppHome());
                     } catch (Exception e) {
                         //1. TODO: 如果失败了,则要恢复第4部操作.
 
@@ -155,7 +162,7 @@ public class ApplicationBackUpServiceImpl
                         applicationService.update(new UpdateWrapper<Application>()
                             .lambda()
                             .eq(Application::getId, application.getId())
-                            .set(Application::getDeploy, DeployState.NEED_RESTART_AFTER_ROLLBACK.get())
+                            .set(Application::getLaunch, LaunchState.NEED_RESTART.get())
                         );
                     } catch (Exception e) {
                         //1. TODO: 如果失败,则要恢复第4第5步操作.
@@ -192,24 +199,11 @@ public class ApplicationBackUpServiceImpl
     public void rollbackFlinkSql(Application application, FlinkSql sql) {
         ApplicationBackUp backUp = getFlinkSqlBackup(application.getId(), sql.getId());
         assert backUp != null;
-        FsOperator fsOperator = application.getFsOperator();
-        if (!fsOperator.exists(backUp.getPath())) {
-            return;
-        }
         try {
             FlinkTrackingTask.refreshTracking(backUp.getAppId(), () -> {
                 // 回滚 config 和 sql
                 effectiveService.saveOrUpdate(backUp.getAppId(), EffectiveType.CONFIG, backUp.getId());
                 effectiveService.saveOrUpdate(backUp.getAppId(), EffectiveType.FLINKSQL, backUp.getSqlId());
-
-                // 2) 删除当前项目
-                fsOperator.delete(application.getRemoteAppHome().getAbsolutePath());
-                try {
-                    // 5)将备份的文件copy到有效项目目录下.
-                    fsOperator.copyDir(backUp.getPath(), application.getRemoteAppHome().getAbsolutePath());
-                } catch (Exception e) {
-                    throw e;
-                }
                 return null;
             });
         } catch (Exception e) {
@@ -244,22 +238,19 @@ public class ApplicationBackUpServiceImpl
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void backup(Application application) {
+    public void backup(Application application, FlinkSql flinkSql) {
         //1) 基础的配置文件备份
-        File appHome = application.getRemoteAppHome();
+        String appHome = (application.isCustomCodeJob() && application.isCICDJob()) ? application.getDistHome() : application.getAppHome();
         FsOperator fsOperator = application.getFsOperator();
-        if (fsOperator.exists(appHome.getPath())) {
+        if (fsOperator.exists(appHome)) {
             // 3) 需要备份的做备份,移动文件到备份目录...
             ApplicationConfig config = configService.getEffective(application.getId());
             if (config != null) {
                 application.setConfigId(config.getId());
             }
-
             //2) FlinkSQL任务需要备份sql和依赖.
             int version = 1;
-            if (application.isFlinkSqlJob()) {
-                FlinkSql flinkSql = flinkSqlService.getEffective(application.getId(), false);
-                assert flinkSql != null;
+            if (flinkSql != null) {
                 application.setSqlId(flinkSql.getId());
                 version = flinkSql.getVersion();
             } else if (config != null) {
@@ -271,7 +262,7 @@ public class ApplicationBackUpServiceImpl
 
             this.save(applicationBackUp);
             fsOperator.mkdirs(applicationBackUp.getPath());
-            fsOperator.move(appHome.getPath(), applicationBackUp.getPath());
+            fsOperator.copyDir(appHome, applicationBackUp.getPath());
         }
     }
 

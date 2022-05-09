@@ -1,32 +1,31 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.common.util
 
 import java.io.File
 import java.net.{URL, URLClassLoader}
 import java.util.function.Supplier
+import scala.util.Try
 
 object ClassLoaderUtils extends Logger {
 
-  private[this] lazy val originalClassLoader: ClassLoader = Thread.currentThread().getContextClassLoader
+  private[this] val originalClassLoader: ClassLoader = Thread.currentThread().getContextClassLoader
 
   /**
    * 指定 classLoader执行代码...
@@ -69,18 +68,18 @@ object ClassLoaderUtils extends Logger {
 
   def loadJar(jarFilePath: String): Unit = {
     val jarFile = new File(jarFilePath)
-    require(jarFile.exists, s"[StreamX] jarFilePath:$jarFilePath is not exists")
-    require(jarFile.isFile, s"[StreamX] jarFilePath:$jarFilePath is not file")
-    loadPath(jarFile.getAbsolutePath, List(".jar", ".zip"))
+    require(jarFile.exists, s"[StreamX] ClassLoaderUtils.loadJar: jarFilePath $jarFilePath is not exists")
+    require(jarFile.isFile, s"[StreamX] ClassLoaderUtils.loadJar: jarFilePath $jarFilePath is not file")
+    loadPath(jarFile.getAbsolutePath)
   }
 
   def loadJars(path: String): Unit = {
     val jarDir = new File(path)
-    require(jarDir.exists, s"[StreamX] jarPath: $path is not exists")
-    require(jarDir.isDirectory, s"[StreamX] jarPath: $path is not directory")
-    require(jarDir.listFiles.length > 0, s"[StreamX] have not jar in path:$path")
+    require(jarDir.exists, s"[StreamX] ClassLoaderUtils.loadJars: jarPath $path is not exists")
+    require(jarDir.isDirectory, s"[StreamX] ClassLoaderUtils.loadJars: jarPath $path is not directory")
+    require(jarDir.listFiles.length > 0, s"[StreamX] ClassLoaderUtils.loadJars: have not jar in path:$path")
     jarDir.listFiles.foreach { x =>
-      loadPath(x.getAbsolutePath, List(".jar", ".zip"))
+      loadPath(x.getAbsolutePath)
     }
   }
 
@@ -95,7 +94,7 @@ object ClassLoaderUtils extends Logger {
     loopDirs(file)
   }
 
-  private[this] def loadPath(filepath: String, ext: List[String]): Unit = {
+  private[this] def loadPath(filepath: String, ext: List[String] = List(".jar", ".zip")): Unit = {
     val file = new File(filepath)
     loopFiles(file, ext)
   }
@@ -123,7 +122,7 @@ object ClassLoaderUtils extends Logger {
   }
 
   private[this] def addURL(file: File): Unit = {
-    try {
+    Try {
       val classLoader = ClassLoader.getSystemClassLoader
       classLoader match {
         case c if c.isInstanceOf[URLClassLoader] =>
@@ -138,9 +137,7 @@ object ClassLoaderUtils extends Logger {
           addURL.setAccessible(true)
           addURL.invoke(ucp, file.toURI.toURL)
       }
-    } catch {
-      case e: Exception => throw e
-    }
+    }.recover { case e => throw e }.get
   }
 
 

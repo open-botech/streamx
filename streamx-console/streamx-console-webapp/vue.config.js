@@ -28,7 +28,6 @@ const {getThemeColors, modifyVars} = require('./src/utils/themeUtil')
 const {resolveCss} = require('./src/utils/theme-color-replacer-extend')
 const isProd = process.env.NODE_ENV === 'production'
 
-
 function resolve (dir) {
   return path.join(__dirname, dir)
 }
@@ -37,16 +36,7 @@ function resolve (dir) {
 module.exports = {
 
   devServer: {
-    // development server port 8000
-    port: 10000,
-    proxy: {
-      '/api/!*': {
-        target: 'http://test-hadoop-1:10000',
-        ws: false,
-        changeOrigin: true,
-        pathRewrite: { '^/api': '' }
-      }
-    }
+    port: process.env['VUE_APP_PORT']
   },
 
   pluginOptions: {
@@ -66,7 +56,11 @@ module.exports = {
 
     plugins: [
       // Ignore all locale files of moment.js
-      new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\/locale$/,
+        contextRegExp: /moment$/
+      }),
+
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
@@ -135,3 +129,4 @@ module.exports = {
   publicPath: '/',
   productionSourceMap: false
 }
+

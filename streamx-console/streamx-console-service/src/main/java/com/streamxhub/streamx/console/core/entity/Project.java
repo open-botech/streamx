@@ -1,36 +1,38 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.streamxhub.streamx.console.core.entity;
 
+import com.streamxhub.streamx.common.conf.Workspace;
+import com.streamxhub.streamx.common.util.CommandUtils;
+import com.streamxhub.streamx.console.base.util.CommonUtils;
+import com.streamxhub.streamx.console.base.util.WebUtils;
+import com.streamxhub.streamx.console.core.enums.GitAuthorizedError;
+import com.streamxhub.streamx.console.core.service.SettingService;
+
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.streamxhub.streamx.common.conf.Workspace;
-import com.streamxhub.streamx.console.base.util.CommonUtils;
-import com.streamxhub.streamx.console.core.enums.GitAuthorizedError;
-import com.streamxhub.streamx.console.core.service.SettingService;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -39,7 +41,12 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author benjobs
@@ -59,10 +66,9 @@ public class Project implements Serializable {
      */
     private String branches;
 
-    @TableField("LASTBUILD")
     private Date lastBuild;
 
-    private String username;
+    private String userName;
 
     private String password;
     /**
@@ -72,13 +78,14 @@ public class Project implements Serializable {
 
     private String pom;
 
+    private String buildArgs;
+
     private Date date;
 
     private String description;
     /**
-     * 构建状态: -1:未构建 0:正在构建 1:构建成功 2:构建失败
+     * 构建状态: -2:发生变更,需重新build -1:未构建 0:正在构建 1:构建成功 2:构建失败
      */
-    @TableField("BUILDSTATE")
     private Integer buildState;
 
     /**
@@ -126,14 +133,13 @@ public class Project implements Serializable {
     }
 
     @JsonIgnore
-    public File getAppBase() {
-        String appBase = Workspace.local().APP_WORKSPACE().concat("/app/");
-        return new File(appBase.concat(id.toString()));
+    public File getDistHome() {
+        return new File(Workspace.local().APP_LOCAL_DIST(), id.toString());
     }
 
     @JsonIgnore
     public CredentialsProvider getCredentialsProvider() {
-        return new UsernamePasswordCredentialsProvider(this.username, this.password);
+        return new UsernamePasswordCredentialsProvider(this.userName, this.password);
     }
 
     @JsonIgnore
@@ -144,16 +150,16 @@ public class Project implements Serializable {
 
     @JsonIgnore
     public void delete() throws IOException {
-        File file = getGitRepository();
-        FileUtils.deleteDirectory(file);
+        FileUtils.deleteDirectory(getAppSource());
+        FileUtils.deleteDirectory(getDistHome());
     }
 
     @JsonIgnore
     public List<String> getAllBranches() {
         try {
             Collection<Ref> refList;
-            if (CommonUtils.notEmpty(username, password)) {
-                UsernamePasswordCredentialsProvider pro = new UsernamePasswordCredentialsProvider(username, password);
+            if (CommonUtils.notEmpty(userName, password)) {
+                UsernamePasswordCredentialsProvider pro = new UsernamePasswordCredentialsProvider(userName, password);
                 refList = Git.lsRemoteRepository().setRemote(url).setCredentialsProvider(pro).call();
             } else {
                 refList = Git.lsRemoteRepository().setRemote(url).call();
@@ -167,7 +173,8 @@ public class Project implements Serializable {
                 }
             }
             return branchList;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return Collections.emptyList();
     }
@@ -175,8 +182,8 @@ public class Project implements Serializable {
     @JsonIgnore
     public GitAuthorizedError gitCheck() {
         try {
-            if (CommonUtils.notEmpty(username, password)) {
-                UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
+            if (CommonUtils.notEmpty(userName, password)) {
+                UsernamePasswordCredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userName, password);
                 Git.lsRemoteRepository().setRemote(url).setCredentialsProvider(credentialsProvider).call();
             } else {
                 Git.lsRemoteRepository().setRemote(url).call();
@@ -206,20 +213,39 @@ public class Project implements Serializable {
      */
     public void cleanCloned() throws IOException {
         if (isCloned()) {
-            FileUtils.deleteDirectory(getAppSource());
-            FileUtils.deleteDirectory(getAppBase());
+            this.delete();
         }
     }
 
     @JsonIgnore
-    public List<String> getMavenBuildCmd() {
+    public List<String> getMavenArgs() {
+        String mvn = "mvn";
+        try {
+            if (CommonUtils.isWindows()) {
+                CommandUtils.execute("mvn.cmd --version");
+            } else {
+                CommandUtils.execute("mvn --version");
+            }
+        } catch (Exception e) {
+            if (CommonUtils.isWindows()) {
+                mvn = WebUtils.getAppHome().concat("/bin/mvnw.cmd");
+            } else {
+                mvn = WebUtils.getAppHome().concat("/bin/mvnw");
+            }
+        }
+        return Arrays.asList(mvn.concat(" clean package -DskipTests ").concat(StringUtils.isEmpty(this.buildArgs) ? "" : this.buildArgs.trim()));
+    }
+
+    @JsonIgnore
+    public String getMavenWorkHome() {
         String buildHome = this.getAppSource().getAbsolutePath();
         if (CommonUtils.notEmpty(this.getPom())) {
-            buildHome = new File(buildHome.concat("/").concat(this.getPom()))
+            buildHome = new File(buildHome.concat("/")
+                .concat(this.getPom()))
                 .getParentFile()
                 .getAbsolutePath();
         }
-        return Arrays.asList("cd ".concat(buildHome), "mvn clean install -DskipTests");
+        return buildHome;
     }
 
     @JsonIgnore
@@ -229,7 +255,7 @@ public class Project implements Serializable {
             getLogHeader("maven install"),
             getName(),
             getBranches(),
-            getMavenBuildCmd()
+            getMavenArgs()
         );
     }
 

@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License") you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.flink.core
 
@@ -40,8 +38,7 @@ object FlinkSqlExecutor extends Logger {
   private[this] val lock = new ReentrantReadWriteLock().writeLock
 
   /**
-   * all the available sql config options. see
-   * https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/config.html
+   * all the available sql config options. see: https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/table/config
    */
   lazy val tableConfigOptions: JavaMap[String, ConfigOption[_]] = {
     def extractConfig(clazz: Class[_]): JavaMap[String, ConfigOption[_]] = {
@@ -86,7 +83,7 @@ object FlinkSqlExecutor extends Logger {
     //TODO registerHiveCatalog
     val insertArray = new ArrayBuffer[String]()
     SqlCommandParser.parseSQL(flinkSql).foreach(x => {
-      val args = x.operands.head
+      val args = if (x.operands.isEmpty) null else x.operands.head
       val command = x.command.name
       x.command match {
         case USE =>
@@ -118,20 +115,17 @@ object FlinkSqlExecutor extends Logger {
           callback(s"$command: ${modules.mkString("\n")}")
         case SET =>
           if (!tableConfigOptions.containsKey(args)) {
-            throw new IllegalArgumentException(s"$args is not a valid table/sql config, please check link: https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/config.html")
+            throw new IllegalArgumentException(s"$args is not a valid table/sql config, please check link: https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/table/config")
           }
+          val operand = x.operands(1)
           if (TableConfigOptions.TABLE_SQL_DIALECT.key().equalsIgnoreCase(args)) {
-            val dialect = x.operands(1)
-            if (SqlDialect.HIVE.name().equalsIgnoreCase(dialect)) {
-              context.getConfig.setSqlDialect(SqlDialect.HIVE)
-              if (SqlDialect.DEFAULT.name().equalsIgnoreCase(dialect)) {
-                context.getConfig.setSqlDialect(SqlDialect.DEFAULT)
-              }
-            }
+            Try(SqlDialect.valueOf(operand.toUpperCase()))
+              .map(context.getConfig.setSqlDialect(_))
+              .getOrElse(throw new IllegalArgumentException(s"$operand is not a valid dialect"))
           } else {
-            context.getConfig.getConfiguration.setString(args, x.operands(1))
+            context.getConfig.getConfiguration.setString(args, operand)
           }
-          logInfo(s"$command: $args --> ${x.operands(1)}")
+          logInfo(s"$command: $args --> $operand")
         case RESET =>
           val confDataField = classOf[Configuration].getDeclaredField("confData")
           confDataField.setAccessible(true)
@@ -155,12 +149,14 @@ object FlinkSqlExecutor extends Logger {
           }
           callback(builder.toString())
         case EXPLAIN =>
-          val tableResult = context.executeSql(sql)
+          val tableResult = context.executeSql(x.originSql)
           val r = tableResult.collect().next().getField(0).toString
           callback(r)
-        case INSERT_INTO | INSERT_OVERWRITE => insertArray += args
+        case INSERT_INTO | INSERT_OVERWRITE => insertArray += x.originSql
         case SELECT =>
           throw new Exception(s"[StreamX] Unsupported SELECT in current version.")
+        case BEGIN_STATEMENT_SET | END_STATEMENT_SET =>
+          logWarn(s"SQL Client Syntax: ${x.command.name} ")
         case INSERT_INTO | INSERT_OVERWRITE |
              CREATE_FUNCTION | DROP_FUNCTION | ALTER_FUNCTION |
              CREATE_CATALOG | DROP_CATALOG |
@@ -169,7 +165,7 @@ object FlinkSqlExecutor extends Logger {
              CREATE_DATABASE | DROP_DATABASE | ALTER_DATABASE =>
           try {
             lock.lock()
-            val result = context.executeSql(args)
+            val result = context.executeSql(x.originSql)
             logInfo(s"$command:$args")
           } finally {
             if (lock.isHeldByCurrentThread) {

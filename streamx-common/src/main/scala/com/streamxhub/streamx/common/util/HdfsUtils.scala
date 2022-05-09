@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.common.util
 
@@ -40,8 +38,15 @@ object HdfsUtils extends Logger {
 
   def mkdirs(path: String): Unit = HadoopUtils.hdfs.mkdirs(getPath(path))
 
-  def copyHdfs(src: String, dst: String, delSrc: Boolean = false, overwrite: Boolean = true): Unit =
-    FileUtil.copy(HadoopUtils.hdfs, getPath(src), HadoopUtils.hdfs, getPath(dst), delSrc, overwrite, HadoopUtils.hadoopConf)
+  def copyHdfs(src: String, dst: String, delSrc: Boolean = false, overwrite: Boolean = true): Unit = {
+    val srcPath = getPath(src)
+    val dstPath = getPath(dst)
+    val dstStatus = HadoopUtils.hdfs.getFileStatus(dstPath)
+    val dstFinalPath = if (dstStatus.isFile) dstPath else {
+      getPath(s"$dst/${srcPath.getName}")
+    }
+    FileUtil.copy(HadoopUtils.hdfs, srcPath, HadoopUtils.hdfs, dstFinalPath, delSrc, overwrite, HadoopUtils.hadoopConf)
+  }
 
   def copyHdfsDir(src: String, dst: String, delSrc: Boolean = false, overwrite: Boolean = true): Unit = {
     list(src).foreach(x => FileUtil.copy(HadoopUtils.hdfs, x, HadoopUtils.hdfs, getPath(dst), delSrc, overwrite, HadoopUtils.hadoopConf))
@@ -70,7 +75,7 @@ object HdfsUtils extends Logger {
    */
   def create(fileName: String, content: String): Unit = {
     val path: Path = getPath(fileName)
-    require(HadoopUtils.hdfs.exists(path), s"[StreamX] hdfs $fileName is exists!! ")
+    require(HadoopUtils.hdfs.exists(path), s"[StreamX] HdfsUtils.create $fileName is exists!! ")
     val outputStream: FSDataOutputStream = HadoopUtils.hdfs.create(path)
     outputStream.writeUTF(content)
     outputStream.flush()
@@ -81,7 +86,7 @@ object HdfsUtils extends Logger {
 
   def read(fileName: String): String = {
     val path: Path = getPath(fileName)
-    require(HadoopUtils.hdfs.exists(path) && !HadoopUtils.hdfs.isDirectory(path), s"[StreamX] path:$fileName not exists or isDirectory ")
+    require(HadoopUtils.hdfs.exists(path) && !HadoopUtils.hdfs.isDirectory(path), s"[StreamX] HdfsUtils.read: path($fileName) not exists or isDirectory ")
     val in = HadoopUtils.hdfs.open(path)
     val out = new ByteArrayOutputStream()
     IOUtils.copyBytes(in, out, 4096, false)

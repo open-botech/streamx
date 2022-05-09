@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.streamxhub.streamx</groupId>
         <artifactId>streamx</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>streamx-plugin</artifactId>
@@ -18,19 +16,20 @@
     </properties>
 
     <modules>
-        <module>streamx-flink-repl</module>
         <module>streamx-flink-sqlclient</module>
         <module>streamx-flink-udf</module>
         <module>streamx-flink-submit</module>
-        <module>streamx-jvm-profiler</module>
+        <module>streamx-flink-proxy</module>
         <module>streamx-flink-packer</module>
         <module>streamx-flink-kubernetes</module>
+        <module>streamx-jvm-profiler</module>
     </modules>
 
     <dependencies>
+
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.11</artifactId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
             <version>${scalatest.version}</version>
             <scope>test</scope>
         </dependency>

@@ -39,6 +39,14 @@
   line-height: 1.8
 }
 
+.control-button {
+  margin-right: 3px;
+}
+
+.ctl-btn-color {
+  background: #f8f9f9;
+}
+
 .gutter-box {
   padding: 10px 15px;
   background: @component-background;
@@ -71,6 +79,18 @@
   }
 }
 
+.build-badge {
+  float: right;
+  margin-right: 5px;
+  font-size : 12px;
+  -webkit-transform : scale(0.7,0.7);
+  *font-size:10px;
+
+  .ant-badge-count {
+    padding: 0 5px 1px 5px;
+  }
+}
+
 .app_list {
   .ant-table-thead, .ant-table-tbody {
     tr {
@@ -82,6 +102,34 @@
     th {
       background: unset !important;
     }
+  }
+
+  .app_type {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    margin-right: 5px;
+    line-height: 12px;
+    overflow: hidden;
+    overflow: hidden;
+  }
+
+  .app_sql {
+    padding: 2px 4px;
+    border: 1px solid #0070cc;
+    background: rgba(0,112,204,.2);
+    color: rgba(0,0,0,.85);
+    font-size: 14px;
+    -webkit-transform: scale(0.7);
+  }
+
+  .app_jar {
+    border: 1px solid #0066ff;
+    padding: 3px 5px;
+    background: #1890ff;
+    color: #f5f5f5;
+    font-size: 14px;
+    -webkit-transform: scale(0.7);
   }
 
   .expanded-table {
@@ -119,3 +167,20 @@
   }
 
 }
+
+
+.running-tag {
+  animation: running-tag-color 800ms ease-out infinite alternate;
+}
+
+@keyframes running-tag-color {
+  0% {
+    border-color: #3da9f2;
+    box-shadow: 0 0 1px #3da9f2, inset 0 0 2px #3da9f2;
+  }
+  100% {
+    border-color: #3da9f2;
+    box-shadow: 0 0 10px #3da9f2, inset 0 0 5px #3da9f2;
+  }
+}
+

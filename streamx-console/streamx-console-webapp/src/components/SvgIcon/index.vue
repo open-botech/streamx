@@ -6,6 +6,7 @@
     <fql v-if="name==='fql'"></fql>
     <flinksql v-if="name==='flinksql'"></flinksql>
     <maven v-if="name==='maven'"></maven>
+    <mvnpass v-if="name==='mvnpass'"></mvnpass>
     <workspace v-if="name==='workspace'"></workspace>
     <threshold v-if="name==='threshold'"></threshold>
     <http v-if="name==='http'"></http>
@@ -34,7 +35,7 @@
     <upload v-if="name==='upload'"></upload>
     <plus v-if="name==='plus'"></plus>
     <flame v-if="name==='flame'"></flame>
-    <code v-if="name==='code'"></code>
+    <code v-if="name==='icode'"></code>
     <copy v-if="name==='copy'"></copy>
     <swap v-if="name==='swap'"></swap>
     <github v-if="name==='github'"></github>
@@ -57,6 +58,7 @@ import {
   fql,
   http,
   maven,
+  mvnpass,
   spark,
   stream,
   workspace,
@@ -107,6 +109,7 @@ export default {
     fql,
     http,
     maven,
+    mvnpass,
     spark,
     stream,
     workspace,

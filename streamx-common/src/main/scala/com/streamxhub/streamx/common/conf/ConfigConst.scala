@@ -1,28 +1,22 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.common.conf
-
-import com.streamxhub.streamx.common.util.SystemPropertyUtils
-import org.fusesource.jansi.Ansi.Color._
-import org.fusesource.jansi.Ansi.ansi
 
 import java.time.LocalDateTime
 
@@ -70,8 +64,6 @@ object ConfigConst {
 
   val KEY_HADOOP_USER_NAME = "HADOOP_USER_NAME"
 
-  val DEFAULT_HADOOP_USER_NAME = "hdfs"
-
   /**
    * hadoop.security.authentication
    */
@@ -116,7 +108,13 @@ object ConfigConst {
 
   val KEY_FLINK_DEPLOYMENT_OPTION_PREFIX = "flink.deployment.option."
 
-  val KEY_FLINK_APP_NAME = "yarn.application.name"
+  val KEY_FLINK_APP_NAME = "pipeline.name"
+
+  val KEY_YARN_APP_ID = "yarn.application.id"
+
+  val KEY_YARN_APP_NAME = "yarn.application.name"
+
+  val KEY_YARN_APP_QUEUE = "yarn.application.queue"
 
   val KEY_FLINK_SAVEPOINT_PATH = "execution.savepoint.path"
 
@@ -203,7 +201,6 @@ object ConfigConst {
 
   val KEY_KAFKA_START_FROM_TIMESTAMP = "timestamp"
 
-  val REDIS_PREFIX = "redis."
 
   val KEY_ALIAS = "alias"
 
@@ -211,15 +208,27 @@ object ConfigConst {
    * about config jdbc...
    */
   val KEY_JDBC_PREFIX = "jdbc."
+
   val KEY_JDBC_DRIVER = "driverClassName"
+
   val KEY_JDBC_DATABASE = "database"
+
   val KEY_JDBC_URL = "jdbcUrl"
+
   val KEY_JDBC_USER = "username"
+
   val KEY_JDBC_PASSWORD = "password"
+
   val KEY_JDBC_INSERT_BATCH = "batch.size"
+
+  val KEY_JDBC_INSERT_BATCH_DELAYTIME = "batch.delayTime"
+
   val DEFAULT_JDBC_INSERT_BATCH = 1
 
+  val DEFAULT_JDBC_INSERT_BATCH_DELAYTIME = 1000L
+
   val MONGO_PREFIX = "mongodb."
+
   /**
    * about config HBase
    */
@@ -239,93 +248,63 @@ object ConfigConst {
    * about influx
    */
   val INFLUX_PREFIX = "influx."
+
   val KEY_INFLUX_ACTIONS = "actions"
+
   val KEY_INFLUX_FLUSH_DURATION = "flush.duration"
-  /**
-   * about clickhouse
-   */
-  val CLICKHOUSE_SINK_PREFIX = "clickhouse.sink"
-
-  val HTTP_SINK_PREFIX = "http.sink"
 
   /**
-   * sink threshold and failover...
+   * about config doris
    */
-  val KEY_SINK_THRESHOLD_BUFFER_SIZE: String = "threshold.bufferSize"
-  val KEY_SINK_THRESHOLD_NUM_WRITERS: String = "threshold.numWriters"
-  val KEY_SINK_THRESHOLD_QUEUE_CAPACITY: String = "threshold.queueCapacity"
-  val KEY_SINK_THRESHOLD_DELAY_TIME: String = "threshold.delayTime"
-  val KEY_SINK_THRESHOLD_REQ_TIMEOUT: String = "threshold.requestTimeout"
-  val KEY_SINK_THRESHOLD_RETRIES: String = "threshold.retries"
-  val KEY_SINK_THRESHOLD_SUCCESS_CODE: String = "threshold.successCode"
-
-  val KEY_SINK_FAILOVER_TABLE: String = "failover.table"
-  val KEY_SINK_FAILOVER_STORAGE: String = "failover.storage"
-
-  val DEFAULT_SINK_REQUEST_TIMEOUT = 2000
-  val DEFAULT_HTTP_SUCCESS_CODE = 200
-  val DEFAULT_SINK_THRESHOLD_QUEUE_CAPACITY = 10000
-  val DEFAULT_SINK_THRESHOLD_DELAY_TIME = 1000L
-  val DEFAULT_SINK_THRESHOLD_BUFFER_SIZE = 1000
-  val DEFAULT_SINK_THRESHOLD_RETRIES = 3
-  val DEFAULT_SINK_THRESHOLD_NUM_WRITERS: Int = Runtime.getRuntime.availableProcessors()
+  val DORIS_SINK_PREFIX = "doris.sink"
+  val DORIS_FENODES = "fenodes"
+  val DORIS_DATABASE = "database"
+  val DORIS_TABLE = "table"
+  val DORIS_USER = "user"
+  val DORIS_PASSWORD = "password"
+  val DORIS_BATCHSIZE = "batchSize"
+  val DORIS_DEFAULT_BATCHSIZE = "100"
+  val DORIS_INTERVALMS = "intervalMs"
+  val DORIS_DEFAULT_INTERVALMS = "3000"
+  val DORIS_MAXRETRIES = "maxRetries"
+  val DORIS_DEFAULT_MAXRETRIES = "1"
+  val DORIS_STREAM_LOAD_PROP_PREFIX = "streamLoad."
 
   /**
-   * about config es
+   * flink config key
    */
-  val ES_PREFIX = "es.sink."
+  val KEY_FLINK_APPLICATION_ARGS = "$internal.application.program-args"
 
-  val KEY_ES_AUTH_USER = "es.auth.user"
+  val KEY_FLINK_APPLICATION_MAIN_CLASS = "$internal.application.main"
 
-  val KEY_ES_AUTH_PASSWORD = "es.auth.password"
+  val KEY_FLINK_JM_PROCESS_MEMORY = "jobmanager.memory.process.size"
 
-  val KEY_ES_REST_MAX_RETRY = "es.rest.max.retry.timeout"
+  val KEY_FLINK_TM_PROCESS_MEMORY = "taskmanager.memory.process.size"
 
-  val KEY_ES_REST_CONTENT_TYPE = "es.rest.content.type"
+  val KEY_FLINK_TOTAL_MEMORY = "jobmanager.memory.flink.size"
 
-  val KEY_ES_CONN_REQ_TIME_OUT = "es.connect.request.timeout"
+  val KEY_FLINK_JVM_HEAP_MEMORY = "jobmanager.memory.heap.size"
 
-  val KEY_ES_CONN_TIME_OUT = "es.connect.timeout"
+  val KEY_FLINK_JVM_OFF_HEAP_MEMORY = "jobmanager.memory.off-heap.size"
 
-  val KEY_ES_CLUSTER_NAME = "es.cluster.name"
-
-  val KEY_ES_BULK_PREFIX = "bulk.flush."
-
-  val KEY_ES_CLIENT_TRANSPORT_SNIFF = "client.transport.sniff"
-
-  val KEY_STREAMX_WORKSPACE_LOCAL = "streamx.workspace.local"
-
-  val KEY_STREAMX_WORKSPACE_REMOTE = "streamx.workspace.remote"
-
-  val STREAMX_WORKSPACE_DEFAULT = "/streamx"
-
-  /**
-   * maven repository used for built-in compilation
-   */
-  val DEFAULT_MAVEN_REMOTE_URL = "https://repo1.maven.org/maven2/"
-
-  /**
-   * namespace for docker image used in docker build env and image register
-   */
-  val KEY_DOCKER_IMAGE_NAMESPACE = "streamx.docker.register.image-namespace"
-  val DOCKER_IMAGE_NAMESPACE_DEFAULT = "streamx"
-  lazy val DOCKER_IMAGE_NAMESPACE: String = SystemPropertyUtils.get(KEY_DOCKER_IMAGE_NAMESPACE, DOCKER_IMAGE_NAMESPACE_DEFAULT)
+  val STREAMX_FLINKSQL_CLIENT_CLASS = "com.streamxhub.streamx.flink.cli.SqlClient"
 
   def printLogo(info: String): Unit = {
-    println(ansi.eraseScreen.fg(YELLOW).a("\n\n                 .+.                          ").reset)
-    println(ansi.eraseScreen.fg(YELLOW).a("           _____/ /_________  ____ _____ ___ ").fg(RED).a(" _  __").reset)
-    println(ansi.eraseScreen.fg(YELLOW).a("          / ___/ __/ ___/ _ \\/ __ `/ __ `__ \\").fg(RED).a("| |/_/").reset)
-    println(ansi.eraseScreen.fg(YELLOW).a("         (__  ) /_/ /  /  __/ /_/ / / / / / /").fg(RED).a(">  <  ").reset)
-    println(ansi.eraseScreen.fg(YELLOW).a("        /____/\\__/_/   \\___/\\__,_/_/ /_/ /_/").fg(RED).a("_/|_|  ").reset)
-    println(ansi.eraseScreen.fg(YELLOW).a("                                            ").fg(RED).a("  |/   ").reset)
-    println(ansi.eraseScreen.fg(YELLOW).a("                                            ").fg(RED).a("  .    ").reset)
+    // scalastyle:off println
+    println("\n\n                 .+.                                ")
+    println("           _____/ /_________  ____ _____ ___  _  __     ")
+    println("          / ___/ __/ ___/ _ \\/ __ `/ __ `__ \\| |/_/   ")
+    println("         (__  ) /_/ /  /  __/ /_/ / / / / / />  <       ")
+    println("        /____/\\__/_/   \\___/\\__,_/_/ /_/ /_/_/|_|    ")
+    println("                                              |/        ")
+    println("                                              .         ")
     println("\n       WebSite:  http://www.streamxhub.com            ")
-    println("       GitHub :  https://github.com/streamxhub/streamx")
-    println("       Gitee  :  https://gitee.com/benjobs/streamx    ")
-    println("       Ver    :  1.2.0                                ")
-    println(s"       Info   :  $info")
-    println(s"       Time   :  ${LocalDateTime.now}")
-    println("\n")
+    println("       GitHub :  https://github.com/streamxhub/streamx  ")
+    println("       Gitee  :  https://gitee.com/streamxhub/streamx   ")
+    println("       Ver    :  1.2.3                                  ")
+    println(s"       Info   :  $info                                 ")
+    println(s"       Time   :  ${LocalDateTime.now}              \n\n")
+    // scalastyle:on println
   }
 
 }

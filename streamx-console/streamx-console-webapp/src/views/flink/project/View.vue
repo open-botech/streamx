@@ -15,7 +15,7 @@
           <a-radio-button
             @click="handleQuery(-1)"
             value="-1">
-            Unbuild
+            Not Build
           </a-radio-button>
           <a-radio-button
             @click="handleQuery(0)"
@@ -57,8 +57,14 @@
           :key="index"
           v-for="(item, index) in dataSource">
           <a-list-item-meta>
-            <svg-icon class="avatar" v-if="item.type === 1" name="flink" size="large" slot="avatar"></svg-icon>
-            <svg-icon class="avatar" v-if="item.type === 2" name="spark" size="large" slot="avatar"></svg-icon>
+            <a-badge class="build-badge" v-if="item.buildState === -2" slot="avatar" count="NEW" title="this project has changed,need rebuild">
+              <svg-icon class="avatar" v-if="item.type === 1" name="flink" size="large"></svg-icon>
+              <svg-icon class="avatar" v-if="item.type === 2" name="spark" size="large"></svg-icon>
+            </a-badge>
+            <template v-else>
+              <svg-icon class="avatar" v-if="item.type === 1" name="flink" size="large" slot="avatar"></svg-icon>
+              <svg-icon class="avatar" v-if="item.type === 2" name="spark" size="large" slot="avatar"></svg-icon>
+            </template>
             <a slot="title">
               {{ item.name }}
               <a-badge
@@ -117,42 +123,90 @@
               class="list-content-item"
               style="width: 150px">
               <span>Build State</span>
-              <p v-if="item.buildState === 2">
-                <a-tag color="#f5222d">FAILED</a-tag>
+              <p v-if="item.buildState === -1">
+                <a-tag color="#C0C0C0">NOT BUILD</a-tag>
+              </p>
+              <p v-if="item.buildState === -2">
+                <a-tag color="#FFA500">NEED REBUILD</a-tag>
+              </p>
+              <p v-else-if="item.buildState === 0">
+                <a-tag color="#1AB58E" class="status-processing-building">BUILDING</a-tag>
+              </p>
+              <p v-else-if="item.buildState === 1">
+                <a-tag color="#52c41a">SUCCESSFUL</a-tag>
               </p>
               <p v-else>
-                <a-tag color="#52c41a">SUCCESSFUL</a-tag>
+                <a-tag color="#f5222d">FAILED</a-tag>
               </p>
             </div>
           </div>
 
           <div class="operation">
-            <a-icon
-              v-if="item.buildState === 0"
-              type="sync"
-              style="color:#4a9ff5"
-              spin
-              @click="handleSeeLog(item)" />
-            <a-popconfirm
-              v-else
-              v-permit="'project:build'"
-              title="Are you sure build this project?"
-              cancel-text="No"
-              ok-text="Yes"
-              @confirm="handleBuild(item)">
-              <svg-icon
-                name="thunderbolt"/>
-            </a-popconfirm>
-            <a-popconfirm
-              title="Are you sure delete this project ?"
-              cancel-text="No"
-              ok-text="Yes"
-              @confirm="handleDelete(item)">
-              <svg-icon
-                name="remove"
-                v-permit="'project:delete'"
-                style="margin-left:10px;"/>
-            </a-popconfirm>
+
+            <a-tooltip
+              title="See Build log"
+              v-if="item.buildState === 0">
+              <a-button
+                shape="circle"
+                size="small"
+                style="margin-left: 8px"
+                @click.native="handleSeeLog(item)"
+                class="control-button ctl-btn-color">
+                <a-icon
+                  spin
+                  type="sync"
+                  style="color:#4a9ff5"/>
+              </a-button>
+            </a-tooltip>
+
+            <a-tooltip
+              title="Build Project"
+              v-if="item.buildState !== 0"
+              v-permit="'project:build'">
+              <a-popconfirm
+                title="Are you sure build this project?"
+                cancel-text="No"
+                ok-text="Yes"
+                @confirm="handleBuild(item)">
+                <a-button
+                  shape="circle"
+                  size="small"
+                  style="margin-left: 8px"
+                  class="control-button ctl-btn-color">
+                  <a-icon type="thunderbolt" />
+                </a-button>
+              </a-popconfirm>
+            </a-tooltip>
+
+            <a-tooltip title="Update Project">
+              <a-button
+                v-permit="'project:update'"
+                @click.native="handleEdit(item)"
+                shape="circle"
+                size="small"
+                style="margin-left: 8px"
+                class="control-button ctl-btn-color">
+                <a-icon type="edit"/>
+              </a-button>
+            </a-tooltip>
+
+            <a-tooltip title="Delete Project">
+              <a-popconfirm
+                title="Are you sure delete this project ?"
+                cancel-text="No"
+                ok-text="Yes"
+                @confirm="handleDelete(item)">
+                <a-button
+                  type="danger"
+                  shape="circle"
+                  size="small"
+                  style="margin-left: 8px"
+                  class="control-button">
+                  <a-icon type="delete"/>
+                </a-button>
+              </a-popconfirm>
+            </a-tooltip>
+
           </div>
 
         </a-list-item>
@@ -178,16 +232,15 @@
   </div>
 </template>
 <script>
-import { build, list,remove,closebuild } from '@api/project'
-import { check } from '@api/setting'
+import { build, buildlog, list,remove,closebuild } from '@api/project'
 import Ellipsis from '@comp/Ellipsis'
-import SockJS from 'sockjs-client'
-import Stomp from 'webstomp-client'
+import {mapActions} from 'vuex'
 import { Terminal } from 'xterm'
 import 'xterm/css/xterm.css'
 
 import SvgIcon from '@/components/SvgIcon'
 import {baseUrl} from '@/api/baseUrl'
+import storage from '@/utils/storage'
 
 export default {
   components: { Ellipsis, SvgIcon },
@@ -201,6 +254,8 @@ export default {
       stompClient: null,
       terminal: null,
       projectId: null,
+      socketId: null,
+      storageKey: 'BUILD_SOCKET_ID',
       controller: {
         ellipsis: 100,
         modalStyle: {
@@ -231,6 +286,8 @@ export default {
   },
 
   methods: {
+    ...mapActions(['SetProjectId']),
+
     handleSearch (value) {
       this.paginationInfo = null
       this.handleFetch({
@@ -240,40 +297,28 @@ export default {
     },
 
     handleBuild (record) {
-      check().then((resp) => {
-        const success = resp.data == true || resp.data == 'true'
-        if (success) {
-          this.$swal.fire({
-            icon: 'success',
-            title: 'The current project is building',
-            showConfirmButton: false,
-            timer: 2000
-          }).then((r)=> {
-            build({id: record.id})
-          })
-        } else {
-          this.$swal.fire(
-            'Failed',
-            'Please check "StreamX Console Workspace" is defined and make sure have read and write permissions',
-            'error'
-          )
-        }
+      this.$swal.fire({
+        icon: 'success',
+        title: 'The current project is building',
+        showConfirmButton: false,
+        timer: 2000
+      }).then((r)=> {
+        this.socketId = this.uuid()
+        storage.set(this.storageKey,this.socketId)
+        build({
+          id: record.id,
+          socketId: this.socketId
+        })
       })
     },
 
     handleAdd () {
-      check().then((resp) => {
-        const success = resp.data == true || resp.data == 'true'
-        if (success) {
-          this.$router.push({ 'path': '/flink/project/add' })
-        } else {
-          this.$swal.fire(
-            'Failed',
-            'Please check "StreamX Console Workspace" is defined and make sure have read and write permissions',
-            'error'
-          )
-        }
-      })
+      this.$router.push({ 'path': '/flink/project/add' })
+    },
+
+    handleEdit(item) {
+      this.SetProjectId(item.id)
+      this.$router.push({'path': '/flink/project/edit'})
     },
 
     handleDelete(item) {
@@ -333,13 +378,31 @@ export default {
       })
       const container = document.getElementById('terminal')
       this.terminal.open(container, true)
-      const url = baseUrl().concat('/websocket')
-      const socket = new SockJS( url, null, { timeout: 15000} )
-      this.stompClient = Stomp.over(socket)
-      this.stompClient.connect({}, (success) => {
-        this.stompClient.subscribe('/resp/build', (msg) => this.terminal.writeln(msg.body))
-        this.stompClient.send('/req/build/' + this.projectId)
-      })
+
+      const url = baseUrl().concat('/websocket/' + this.handleGetSocketId())
+
+      const socket = this.getSocket(url)
+
+      socket.onopen = () => {
+        buildlog({id:project.id})
+      }
+
+      socket.onmessage = (event) => {
+        this.terminal.writeln(event.data)
+      }
+
+      socket.onclose = () => {
+        this.socketId = null
+        storage.rm(this.storageKey)
+      }
+
+    },
+
+    handleGetSocketId() {
+      if (this.socketId == null) {
+        return storage.get(this.storageKey) || null
+      }
+      return this.socketId
     },
 
     handleClose () {
@@ -426,7 +489,7 @@ export default {
 }
 
 .operation {
-  width: 80px;
+  width: 120px;
 }
 
 .ant-tag {
@@ -443,5 +506,26 @@ export default {
   border-radius: 50%;
   background-color: #ebebeb;
   border: 6px solid #ebebeb;
+}
+
+.status-processing-building {
+  animation: building-color 800ms ease-out infinite alternate;
+}
+
+@keyframes building-color {
+  0% {
+    border-color: #1AB58E;
+    box-shadow: 0 0 1px #1AB58E, inset 0 0 2px #1AB58E;
+  }
+  100% {
+    border-color: #1AB58E;
+    box-shadow: 0 0 10px #1AB58E, inset 0 0 5px #1AB58E;
+  }
+}
+
+.build-badge {
+  font-size : 12px;
+  -webkit-transform : scale(0.84,0.84) ;
+  *font-size:10px;
 }
 </style>

@@ -1,40 +1,40 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.streamxhub.streamx.flink.repl.interpreter
 
 import com.streamxhub.streamx.common.util.{ClassLoaderUtils, DependencyUtils, HadoopUtils, Utils}
-import com.streamxhub.streamx.flink.repl.interpreter.FlinkShell._
+import com.streamxhub.streamx.flink.repl.shell.{FlinkILoop, FlinkShell}
+import com.streamxhub.streamx.flink.repl.shell.FlinkShell._
 import com.streamxhub.streamx.flink.repl.shims.FlinkShims
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.flink.api.common.JobExecutionResult
 import org.apache.flink.api.java.{ExecutionEnvironmentFactory, ExecutionEnvironment => JExecutionEnvironment}
-import org.apache.flink.api.scala.{ExecutionEnvironment, FlinkILoop}
+import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.client.program.ClusterClient
 import org.apache.flink.configuration._
 import org.apache.flink.core.execution.{JobClient, JobListener}
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.environment.{StreamExecutionEnvironmentFactory, StreamExecutionEnvironment => JStreamExecutionEnvironment}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
 import org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint
 import org.apache.hadoop.conf.{Configuration => HdfsConfig}
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -67,7 +67,6 @@ class FlinkScalaInterpreter(properties: Properties) {
   private var cluster: Option[ClusterClient[_]] = _
   private var configuration: Configuration = _
   private var mode: ExecutionMode.Value = _
-  private var batchEnv: ExecutionEnvironment = _
   private var streamEnv: StreamExecutionEnvironment = _
   var jobClient: JobClient = _
   var flinkHome: String = _
@@ -102,7 +101,6 @@ class FlinkScalaInterpreter(properties: Properties) {
         }
       }
     }
-    this.batchEnv.registerJobListener(jobListener)
     this.streamEnv.registerJobListener(jobListener)
   }
 
@@ -271,7 +269,6 @@ class FlinkScalaInterpreter(properties: Properties) {
     flinkILoop.intp.beQuietDuring {
       // set execution environment
       flinkILoop.intp.bind("env", flinkILoop.scalaSenv)
-      flinkILoop.intp.bind("benv", flinkILoop.scalaBenv)
 
       val packageImports = Seq[String](
         "org.apache.flink.core.fs._",
@@ -308,13 +305,10 @@ class FlinkScalaInterpreter(properties: Properties) {
     flinkILoop.intp.setContextClassLoader()
     reader.postInit()
 
-    this.batchEnv = flinkILoop.scalaBenv
     this.streamEnv = flinkILoop.scalaSenv
     val timeType = properties.getProperty("flink.senv.timecharacteristic", "EventTime")
     this.streamEnv.getJavaEnv.setStreamTimeCharacteristic(TimeCharacteristic.valueOf(timeType))
-    this.batchEnv.setParallelism(configuration.getInteger(CoreOptions.DEFAULT_PARALLELISM))
     this.streamEnv.setParallelism(configuration.getInteger(CoreOptions.DEFAULT_PARALLELISM))
-
     setAsContext()
   }
 
@@ -330,13 +324,9 @@ class FlinkScalaInterpreter(properties: Properties) {
     method.setAccessible(true)
     method.invoke(null, streamFactory)
 
-    val batchFactory = new ExecutionEnvironmentFactory() {
-      override def createExecutionEnvironment: JExecutionEnvironment = batchEnv.getJavaEnv
-    }
     //StreamExecutionEnvironment
     method = classOf[JExecutionEnvironment].getDeclaredMethod("initializeContextEnvironment", classOf[ExecutionEnvironmentFactory])
     method.setAccessible(true)
-    method.invoke(null, batchFactory)
   }
 
   // for use in java side
@@ -461,8 +451,6 @@ class FlinkScalaInterpreter(properties: Properties) {
 
   }
 
-  def getExecutionEnvironment(): ExecutionEnvironment = this.batchEnv
-
   def getStreamExecutionEnvironment(): StreamExecutionEnvironment = this.streamEnv
 
   private def getUserJarsExceptUdfJars: Seq[String] = {
@@ -524,13 +512,13 @@ class FlinkScalaInterpreter(properties: Properties) {
     new URLClassLoader(userJars.map(e => new File(e).toURI.toURL).toArray)
   }
 
-  def getConfiguration = this.configuration
+  def getConfiguration: Configuration = this.configuration
 
   def getCluster: Option[ClusterClient[_]] = cluster
 
-  def getFlinkILoop = flinkILoop
+  def getFlinkILoop: FlinkILoop = flinkILoop
 
-  def getFlinkShims = flinkShims
+  def getFlinkShims: FlinkShims = flinkShims
 
   def replaceYarnAddress(webURL: String, yarnAddress: String): String = {
     val pattern = "(https?://.*:\\d+)(.*)".r

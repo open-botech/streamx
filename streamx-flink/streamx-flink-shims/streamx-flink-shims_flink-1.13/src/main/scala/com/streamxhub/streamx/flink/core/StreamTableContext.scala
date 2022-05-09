@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.flink.core
 
 import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.streaming.api.graph.StreamGraph
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
-import org.apache.flink.table.api.{Schema, Table}
+import org.apache.flink.table.api.{Schema, StatementSet, Table}
 import org.apache.flink.table.connector.ChangelogMode
 import org.apache.flink.table.descriptors.{ConnectorDescriptor, StreamTableDescriptor}
 import org.apache.flink.table.module.ModuleEntry
+import org.apache.flink.table.sources.TableSource
 import org.apache.flink.table.types.AbstractDataType
 import org.apache.flink.types.Row
 
@@ -100,7 +100,25 @@ class StreamTableContext(override val parameter: ParameterTool,
 
   override def listFullModules(): Array[ModuleEntry] = tableEnv.listFullModules()
 
-  @Deprecated override def connect(connectorDescriptor: ConnectorDescriptor): StreamTableDescriptor = tableEnv.connect(connectorDescriptor)
+  @deprecated override def connect(connectorDescriptor: ConnectorDescriptor): StreamTableDescriptor = tableEnv.connect(connectorDescriptor)
 
+  def $getStreamGraph(jobName: String): StreamGraph = this.streamEnv.getStreamGraph(jobName)
 
+  def $getStreamGraph(jobName: String, clearTransformations: Boolean): StreamGraph = this.streamEnv.getStreamGraph(jobName, clearTransformations)
+
+  override def createStatementSet(): StatementSet = tableEnv.createStatementSet()
+
+  @deprecated def fromTableSource(source: TableSource[_]): Table = tableEnv.fromTableSource(source)
+
+  @deprecated def insertInto(table: Table, sinkPath: String, sinkPathContinued: String*): Unit = tableEnv.insertInto(table, sinkPath, sinkPathContinued: _*)
+
+  @deprecated def insertInto(targetPath: String, table: Table): Unit = tableEnv.insertInto(targetPath, table)
+
+  @deprecated def explain(table: Table): String = tableEnv.explain(table)
+
+  @deprecated def explain(table: Table, extended: Boolean): String = tableEnv.explain(table, extended)
+
+  @deprecated def explain(extended: Boolean): String = tableEnv.explain(extended)
+
+  @deprecated def sqlUpdate(stmt: String): Unit = tableEnv.sqlUpdate(stmt)
 }

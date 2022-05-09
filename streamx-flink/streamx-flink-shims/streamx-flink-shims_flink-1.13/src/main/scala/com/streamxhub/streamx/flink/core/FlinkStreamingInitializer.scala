@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.streamxhub.streamx.flink.core
 
@@ -28,8 +26,8 @@ import org.apache.flink.api.common.RuntimeExecutionMode
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
 import org.apache.flink.api.common.time.Time
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.configuration.CoreOptions
-import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend
+import org.apache.flink.configuration.{Configuration, CoreOptions}
+import org.apache.flink.contrib.streaming.state.{DefaultConfigurableOptionsFactory, EmbeddedRocksDBStateBackend}
 import org.apache.flink.runtime.state.hashmap.HashMapStateBackend
 import org.apache.flink.runtime.state.storage.{FileSystemCheckpointStorage, JobManagerCheckpointStorage}
 import org.apache.flink.streaming.api.CheckpointingMode
@@ -40,9 +38,10 @@ import org.apache.flink.table.api.TableConfig
 
 import java.io.File
 import java.util.concurrent.TimeUnit
-import scala.collection.JavaConversions._
-import scala.collection.Map
-import scala.util.{Failure, Success, Try}
+import java.util.{HashMap => JavaHashMap}
+import collection.JavaConversions._
+import collection.Map
+import util.{Failure, Success, Try}
 
 private[flink] object FlinkStreamingInitializer {
 
@@ -142,7 +141,9 @@ private[flink] class FlinkStreamingInitializer(args: Array[String], apiType: Api
   def initParameter(): ParameterTool = {
     val argsMap = ParameterTool.fromArgs(args)
     val config = argsMap.get(KEY_APP_CONF(), null) match {
+      // scalastyle:off throwerror
       case null | "" => throw new ExceptionInInitializerError("[StreamX] Usage:can't fond config,please set \"--conf $path \" in main arguments")
+      // scalastyle:on throwerror
       case file => file
     }
     val configArgs = readFlinkConf(config)
@@ -305,7 +306,7 @@ private[flink] class FlinkStreamingInitializer(args: Array[String], apiType: Api
     if (stateBackend != null) {
       require(
         stateBackend == XStateBackend.hashmap || stateBackend == XStateBackend.rocksdb,
-        "state.backend must be [hashmap|rocksdb] in flink 1.13"
+        "state.backend must be [hashmap|rocksdb] in flink 1.13 and above"
       )
       val storage = {
         val storage = parameter.get(KEY_FLINK_STATE_CHECKPOINT_STORAGE, null) match {
@@ -334,28 +335,43 @@ private[flink] class FlinkStreamingInitializer(args: Array[String], apiType: Api
           //从flink-conf.yaml中读取,key: state.checkpoints.dir
           val dir = defaultFlinkConf("state.checkpoints.dir")
           require(dir != null, s"[StreamX] can't found state.checkpoints.dir from Default FlinkConf ")
-          logInfo(s"stat.backend: state.checkpoints.dir found in flink-conf.yaml,$dir")
+          logInfo(s"state.backend: state.checkpoints.dir found in flink-conf.yaml,$dir")
           dir
         case dir =>
-          logInfo(s"stat.backend: flink.checkpoints.dir found in properties,$dir")
+          logInfo(s"state.backend: flink.checkpoints.dir found in properties,$dir")
           dir
       }
 
       stateBackend match {
         case XStateBackend.hashmap =>
-          logInfo("stat.backend: hashmap...")
+          logInfo("state.backend: hashmap...")
           streamEnvironment.setStateBackend(new HashMapStateBackend())
           storage match {
             case CheckpointStorage.jobmanager =>
               logInfo("state.checkpoint-storage: jobmanager...")
-              cpConfig.setCheckpointStorage(new JobManagerCheckpointStorage())
+              val maxMemorySize = Try(parameter.get(KEY_FLINK_STATE_BACKEND_MEMORY).toInt).getOrElse(JobManagerCheckpointStorage.DEFAULT_MAX_STATE_SIZE)
+              val jobManagerCheckpointStorage = new JobManagerCheckpointStorage(maxMemorySize)
+              cpConfig.setCheckpointStorage(jobManagerCheckpointStorage)
             case CheckpointStorage.filesystem =>
               logInfo("state.checkpoint-storage: filesystem...")
               cpConfig.setCheckpointStorage(new FileSystemCheckpointStorage(cpDir))
           }
         case XStateBackend.rocksdb =>
-          logInfo("stat.backend: rocksdb...")
-          streamEnvironment.setStateBackend(new EmbeddedRocksDBStateBackend())
+          logInfo("state.backend: rocksdb...")
+          val rock = new EmbeddedRocksDBStateBackend()
+          val map = new JavaHashMap[String, Object]()
+          val skipKey = List(KEY_FLINK_STATE_BACKEND_ASYNC, KEY_FLINK_STATE_BACKEND_INCREMENTAL, KEY_FLINK_STATE_BACKEND_MEMORY, KEY_FLINK_STATE_ROCKSDB)
+          parameter.getProperties.filter(_._1.startsWith(KEY_FLINK_STATE_ROCKSDB)).filterNot(x => skipKey.contains(x._1)).foreach(x => map.put(x._1, x._2))
+          if (map.nonEmpty) {
+            val optionsFactory = new DefaultConfigurableOptionsFactory
+            val config = new Configuration()
+            val confData = classOf[Configuration].getDeclaredField("confData")
+            confData.setAccessible(true)
+            confData.set(map, config)
+            optionsFactory.configure(config)
+            rock.setRocksDBOptions(optionsFactory)
+          }
+          streamEnvironment.setStateBackend(rock)
           storage match {
             case CheckpointStorage.filesystem =>
               logInfo("state.checkpoint-storage: filesystem...")

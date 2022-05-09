@@ -65,8 +65,8 @@ export function name (params) {
   return http.post(api.Application.NAME, params)
 }
 
-export function exists (params) {
-  return http.post(api.Application.EXISTS, params)
+export function checkName (params) {
+  return http.post(api.Application.CHECKNAME, params)
 }
 
 export function cancel (params) {
@@ -105,10 +105,18 @@ export function revoke (params) {
   return http.post(api.Application.REVOKE, params)
 }
 
-export function startLog (params) {
-  return http.post(api.Application.STARTLOG, params)
+export function optionLog (params) {
+  return http.post(api.Application.OPTIONLOG, params)
+}
+
+export function downLog (params) {
+  return http.post(api.Application.DOWNLOG, params)
 }
 
 export function checkJar(params) {
   return http.post(api.Application.CHECKJAR, params)
+}
+
+export function verifySchema(params) {
+  return http.post(api.Application.VERIFYSCHEMA, params)
 }

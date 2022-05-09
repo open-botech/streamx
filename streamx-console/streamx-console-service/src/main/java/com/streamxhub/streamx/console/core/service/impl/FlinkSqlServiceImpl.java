@@ -1,65 +1,53 @@
 /*
  * Copyright (c) 2019 The StreamX Project
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.streamxhub.streamx.console.core.service.impl;
+
+import com.streamxhub.streamx.common.util.DeflaterUtils;
+import com.streamxhub.streamx.common.util.ExceptionUtils;
+import com.streamxhub.streamx.console.core.dao.FlinkSqlMapper;
+import com.streamxhub.streamx.console.core.entity.Application;
+import com.streamxhub.streamx.console.core.entity.FlinkEnv;
+import com.streamxhub.streamx.console.core.entity.FlinkSql;
+import com.streamxhub.streamx.console.core.enums.CandidateType;
+import com.streamxhub.streamx.console.core.enums.EffectiveType;
+import com.streamxhub.streamx.console.core.service.ApplicationBackUpService;
+import com.streamxhub.streamx.console.core.service.EffectiveService;
+import com.streamxhub.streamx.console.core.service.FlinkEnvService;
+import com.streamxhub.streamx.console.core.service.FlinkSqlService;
+import com.streamxhub.streamx.flink.core.SqlError;
+import com.streamxhub.streamx.flink.proxy.FlinkShimsProxy;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.streamxhub.streamx.common.util.BottomUpClassLoader;
-import com.streamxhub.streamx.common.util.ClassLoaderUtils;
-import com.streamxhub.streamx.common.util.DeflaterUtils;
-import com.streamxhub.streamx.console.base.util.WebUtils;
-import com.streamxhub.streamx.console.core.dao.FlinkSqlMapper;
-import com.streamxhub.streamx.console.core.entity.Application;
-import com.streamxhub.streamx.console.core.entity.FlinkSql;
-import com.streamxhub.streamx.console.core.entity.FlinkVersion;
-import com.streamxhub.streamx.console.core.enums.CandidateType;
-import com.streamxhub.streamx.console.core.enums.EffectiveType;
-import com.streamxhub.streamx.console.core.service.ApplicationBackUpService;
-import com.streamxhub.streamx.console.core.service.EffectiveService;
-import com.streamxhub.streamx.console.core.service.FlinkSqlService;
-import com.streamxhub.streamx.console.core.service.FlinkVersionService;
-import com.streamxhub.streamx.flink.core.SqlError;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 /**
  * @author benjobs
@@ -76,9 +64,7 @@ public class FlinkSqlServiceImpl extends ServiceImpl<FlinkSqlMapper, FlinkSql> i
     private ApplicationBackUpService backUpService;
 
     @Autowired
-    private FlinkVersionService flinkVersionService;
-
-    private final Map<String, URLClassLoader> shimsClassLoaderCache = new ConcurrentHashMap<>();
+    private FlinkEnvService flinkEnvService;
 
     /**
      * @param appId
@@ -88,7 +74,7 @@ public class FlinkSqlServiceImpl extends ServiceImpl<FlinkSqlMapper, FlinkSql> i
     @Override
     public FlinkSql getEffective(Long appId, boolean decode) {
         FlinkSql flinkSql = baseMapper.getEffective(appId);
-        if (decode) {
+        if (flinkSql != null && decode) {
             flinkSql.setSql(DeflaterUtils.unzipString(flinkSql.getSql()));
         }
         return flinkSql;
@@ -96,34 +82,25 @@ public class FlinkSqlServiceImpl extends ServiceImpl<FlinkSqlMapper, FlinkSql> i
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void create(FlinkSql flinkSql, CandidateType type) {
+    public void create(FlinkSql flinkSql) {
         Integer version = this.baseMapper.getLastVersion(flinkSql.getAppId());
         flinkSql.setVersion(version == null ? 1 : version + 1);
         String sql = DeflaterUtils.zipString(flinkSql.getSql());
         flinkSql.setSql(sql);
         this.save(flinkSql);
-        this.setCandidateOrEffective(type, flinkSql.getAppId(), flinkSql.getId());
+        this.setCandidate(CandidateType.NEW, flinkSql.getAppId(), flinkSql.getId());
     }
 
     @Override
-    public void setCandidateOrEffective(CandidateType candidateType, Long appId, Long sqlId) {
-        if (CandidateType.NONE.equals(candidateType)) {
-            this.toEffective(appId, sqlId);
-        } else {
-            this.setCandidate(appId, sqlId, candidateType);
-        }
-    }
-
-    @Transactional(rollbackFor = {Exception.class})
-    public void setCandidate(Long appId, Long sqlId, CandidateType candidateType) {
+    public void setCandidate(CandidateType candidateType, Long appId, Long sqlId) {
         LambdaUpdateWrapper<FlinkSql> updateWrapper = new UpdateWrapper<FlinkSql>().lambda();
         updateWrapper.set(FlinkSql::getCandidate, 0)
-            .eq(FlinkSql::getAppId, appId);
+                .eq(FlinkSql::getAppId, appId);
         this.update(updateWrapper);
 
         updateWrapper = new UpdateWrapper<FlinkSql>().lambda();
         updateWrapper.set(FlinkSql::getCandidate, candidateType.get())
-            .eq(FlinkSql::getId, sqlId);
+                .eq(FlinkSql::getId, sqlId);
         this.update(updateWrapper);
     }
 
@@ -135,14 +112,14 @@ public class FlinkSqlServiceImpl extends ServiceImpl<FlinkSqlMapper, FlinkSql> i
 
         List<FlinkSql> sqlList = this.baseMapper.selectList(wrapper);
         FlinkSql effective = getEffective(application.getId(), false);
-
-        for (FlinkSql sql : sqlList) {
-            if (sql.getId().equals(effective.getId())) {
-                sql.setEffective(true);
-                break;
+        if (effective != null && !sqlList.isEmpty()) {
+            for (FlinkSql sql : sqlList) {
+                if (sql.getId().equals(effective.getId())) {
+                    sql.setEffective(true);
+                    break;
+                }
             }
         }
-
         return sqlList;
     }
 
@@ -171,64 +148,40 @@ public class FlinkSqlServiceImpl extends ServiceImpl<FlinkSqlMapper, FlinkSql> i
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void rollback(Application application) {
         FlinkSql sql = getCandidate(application.getId(), CandidateType.HISTORY);
         assert sql != null;
-
-        //检查并备份当前的任务.
-        FlinkSql effectiveSql = getEffective(application.getId(), false);
-        assert effectiveSql != null;
-        if (!isFlinkSqlBacked(effectiveSql)) {
-            log.info("current job version:{}, Backing up...", sql.getVersion());
-            backUpService.backup(application);
-        } else {
-            log.info("current job version:{}, already backed", sql.getVersion());
+        try {
+            //检查并备份当前的任务.
+            FlinkSql effectiveSql = getEffective(application.getId(), false);
+            assert effectiveSql != null;
+            //回滚历史版本的任务
+            backUpService.rollbackFlinkSql(application, sql);
+        } catch (Exception e) {
+            log.error("Backup and Roll back FlinkSql before start failed.");
+            throw new RuntimeException(e.getMessage());
         }
-        //回滚历史版本的任务
-        backUpService.rollbackFlinkSql(application, sql);
     }
 
     @Override
     public SqlError verifySql(String sql, Long versionId) {
-        ClassLoader loader = getFlinkShimsClassLoader(versionId);
-        String error = ClassLoaderUtils.runAsClassLoader(loader, (Supplier<String>) () -> {
+        FlinkEnv flinkEnv = flinkEnvService.getById(versionId);
+        return FlinkShimsProxy.proxy(flinkEnv.getFlinkVersion(), (Function<ClassLoader, SqlError>) classLoader -> {
             try {
-                Class<?> clazz = loader.loadClass("com.streamxhub.streamx.flink.core.FlinkSqlValidator");
+                Class<?> clazz = classLoader.loadClass("com.streamxhub.streamx.flink.core.FlinkSqlValidator");
                 Method method = clazz.getDeclaredMethod("verifySql", String.class);
                 method.setAccessible(true);
                 Object sqlError = method.invoke(null, sql);
                 if (sqlError == null) {
                     return null;
                 }
-                return sqlError.toString();
-            } catch (Exception e) {
-                log.error("verifySql invocationTargetException: {}", e.getMessage());
+                return FlinkShimsProxy.getObject(this.getClass().getClassLoader(), sqlError);
+            } catch (Throwable e) {
+                log.error("verifySql invocationTargetException: {}", ExceptionUtils.stringifyException(e));
             }
             return null;
         });
-        return SqlError.fromString(error);
-    }
-
-    @SneakyThrows
-    private synchronized ClassLoader getFlinkShimsClassLoader(Long versionId) {
-        FlinkVersion flinkVersion = flinkVersionService.getById(versionId);
-        String version = flinkVersion.getLargeVersion();
-        if (!shimsClassLoaderCache.containsKey(version)) {
-            String shimsRegex = "streamx-flink-shims_flink-(1.12|1.13|1.14)-(.*).jar";
-            Pattern pattern = Pattern.compile(shimsRegex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-
-            List<File> shimsJars = Arrays.stream(Objects.requireNonNull(new File(WebUtils.getAppDir("lib")).listFiles((pathname) -> {
-                Matcher matcher = pattern.matcher(pathname.getName());
-                return matcher.matches() && version.equals(matcher.group(1));
-            }))).collect(Collectors.toList());
-
-            assert shimsJars.size() == 1;
-
-            URL[] urls = {shimsJars.get(0).toURI().toURL()};
-            URLClassLoader classLoader = new BottomUpClassLoader(urls, getClass().getClassLoader());
-            shimsClassLoaderCache.put(version, classLoader);
-        }
-        return shimsClassLoaderCache.get(version);
     }
 
     private boolean isFlinkSqlBacked(FlinkSql sql) {
