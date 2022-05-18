@@ -8,14 +8,17 @@
 
 export default {
   name: 'EmptyView',
-  created() {
-    localStorage.removeItem('STREAMX_TOKEN')
+  mounted() {
+    setTimeout(() => {
+      localStorage.removeItem('STREAMX_TOKEN')
 
-    // 访问系统更新token
-    this.$store.dispatch('SignIn',{
-      username: 'admin',
-      password: 'streamx'
+      // 访问系统更新token
+      this.$store.dispatch('SignIn',{
+        username: 'admin',
+        password: 'streamx'
+      })
     })
+
 
     // 每隔四小时 自动调用登录接口 更新token,防止长时间无操作token超时
     setInterval(() => {
