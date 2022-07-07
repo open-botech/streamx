@@ -76,7 +76,7 @@
               </span>
             </p>
             <div class="sql-box" style="position:relative;" id="flink-sql" :class="'syntax-' + controller.flinkSql.success">
-              <a-button type="primary" style="position:absolute;bottom:30px;right:120px;z-index:99" @click="generateKinship" :loading="kinshipLoading">语法解析</a-button>
+              <a-button type="primary" style="position:absolute;bottom:30px;right:120px;z-index:99" @click="generateKinship" :loading="kinshipLoading">血缘分析</a-button>
               <a-button type="primary" style="position:absolute;bottom:30px;right:20px;z-index:99" @click="viewElement">查看组件</a-button>
             </div>
             <a-icon
