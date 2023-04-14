@@ -30,16 +30,16 @@ export default defineComponent({
               <div
                 className="animated-gradient-text_background animated-gradient-text_background-1"
                 style={{
-                  '--content': '"Apache"',
+                  '--content': '"实时计算平台"',
                   '--start-color': '#00DFD8',
                   '--end-color': '#FFF',
                 }}
               >
                 <span className="animated-gradient-text_foreground animated-gradient-text_foreground-1">
-                  Apache
+                  实时计算平台
                 </span>
               </div>
-              <div className="flex  items-start">
+              {/* <div className="flex  items-start">
                 <div
                   className="animated-gradient-text_background animated-gradient-text_background-2"
                   style={{
@@ -53,15 +53,15 @@ export default defineComponent({
                   </span>
                 </div>
                 <span className="badge bg-secondary-home text-xl tag">Incubating</span>
-              </div>
+              </div> */}
             </div>
             <p className=" text-light-200 leading-40px" style={{ fontSize: '18px' }}>
-              <div>Make stream processing easier!</div>
-              <div>easy-to-use streaming application development framework</div>
-              <div>and operation platform</div>
+              <div>基于流批一体技术的一站式大数据低代码开发平台</div>
+              {/* <div>easy-to-use streaming application development framework</div>
+              <div>and operation platform</div> */}
             </p>
           </div>
-          <div className="flex items-center mt-10">
+          {/* <div className="flex items-center mt-10">
             <a
               className="btn streampark-btn btn !flex items-center"
               href="https://github.com/apache/incubator-streampark"
@@ -90,7 +90,7 @@ export default defineComponent({
               src="https://img.shields.io/github/forks/apache/incubator-streampark.svg?sanitize=true"
               className="wow fadeInUp"
             ></img>
-          </div>
+          </div> */}
         </div>
       );
     };

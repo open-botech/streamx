@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 export default {
+  StreamPark: 'StreamPark',
   menu: {
     system: 'System',
     userManagement: 'User Management',

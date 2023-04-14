@@ -66,7 +66,7 @@
       </Button>
     </FormItem>
     <FormItem class="enter-x text-left">
-      <Button type="link" @click="changeLoginType"> {{ loginText.linkText }} </Button>
+      <!-- <Button type="link" @click="changeLoginType"> {{ loginText.linkText }} </Button> -->
     </FormItem>
   </Form>
   <TeamModal v-model:visible="modelVisible" :userId="userId" @success="handleTeamSuccess" />

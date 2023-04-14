@@ -36,6 +36,9 @@ function joinParentPath(menus: Menu[], parentPath = '') {
     if (!menu.hideMenu && /^\w+\.\w+$/.test(menu.name)) {
       menu.name = t(`menu.${menu.name}`);
     }
+    if (menu.name === 'StreamPark') {
+      menu.name = t('menu.StreamPark');
+    }
     // https://next.router.vuejs.org/guide/essentials/nested-routes.html
     // Note that nested paths that start with / will be treated as a root path.
     // This allows you to leverage the component nesting without having to use a nested URL.

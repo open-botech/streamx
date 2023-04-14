@@ -34,7 +34,7 @@
       />
       <LayoutBreadcrumb v-if="getShowContent && getShowBread" :theme="getHeaderTheme" />
       <!-- slogan -->
-      <Slogan class="hidden xl:block" />
+      <!-- <Slogan class="hidden xl:block" /> -->
     </div>
     <!-- left end -->
 
@@ -51,14 +51,14 @@
 
     <!-- action  -->
     <div :class="`${prefixCls}-action`">
-      <a-button type="link" size="small" class="!hidden !md:block">
+      <!-- <a-button type="link" size="small" class="!hidden !md:block">
         <span>{{ t('layout.header.version') }}:</span>
         <span class="pl-2px">{{ version }}</span>
       </a-button>
-      <Divider type="vertical" />
+      <Divider type="vertical" /> -->
 
       <!-- Github info -->
-      <Github :class="`${prefixCls}-action__item github-item`" />
+      <!-- <Github :class="`${prefixCls}-action__item github-item`" /> -->
       <!-- Theme Switch -->
       <appDarkModeToggle />
 
@@ -85,7 +85,8 @@
   import { defineComponent, unref, computed } from 'vue';
 
   import { propTypes } from '/@/utils/propTypes';
-  import { Layout, Divider } from 'ant-design-vue';
+  import { Layout } from 'ant-design-vue';
+  // import { Layout, Divider } from 'ant-design-vue';
   import { AppLogo } from '/@/components/Application';
   import LayoutMenu from '../menu/index.vue';
   import LayoutTrigger from '../trigger/index.vue';
@@ -107,8 +108,8 @@
     FullScreen,
     Notify,
     ErrorAction,
-    Github,
-    Slogan,
+    // Github,
+    // Slogan,
     LockScreen,
   } from './components';
   import { useAppInject } from '/@/hooks/web/useAppInject';
@@ -132,10 +133,10 @@
       FullScreen,
       Notify,
       ErrorAction,
-      Github,
-      Slogan,
+      // Github,
+      // Slogan,
       LockScreen,
-      Divider,
+      // Divider,
       AppDarkModeToggle,
     },
     props: {

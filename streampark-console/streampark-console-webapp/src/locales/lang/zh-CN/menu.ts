@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 export default {
+  StreamPark: '实时计算平台',
   menu: {
     system: '系统管理',
     userManagement: '用户管理',
